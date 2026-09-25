@@ -437,47 +437,49 @@ private fun AppleLockscreenContent(context: Context) {
                         Spacer(GlanceModifier.height(if (isCompact) 6.dp else 9.dp))
 
                         // 2. Precision Scrubber & Monospace Apple Timestamps
-                        Box(
-                            modifier =
-                                GlanceModifier
-                                    .fillMaxWidth()
-                                    .height(if (isCompact) 3.5.dp else 4.dp)
-                                    .background(Color(0x30FFFFFF))
-                                    .cornerRadius(2.dp),
-                        ) {
-                            LinearProgressIndicator(
-                                progress = if (state.isAvailable) state.playbackPosition else 0f,
-                                modifier = GlanceModifier.fillMaxSize().cornerRadius(2.dp),
-                                color = scrubberFill,
-                                backgroundColor = scrubberTrack,
-                            )
-                        }
+                        Column(modifier = GlanceModifier.fillMaxWidth()) {
+                            Box(
+                                modifier =
+                                    GlanceModifier
+                                        .fillMaxWidth()
+                                        .height(if (isCompact) 3.5.dp else 4.dp)
+                                        .background(Color(0x30FFFFFF))
+                                        .cornerRadius(2.dp),
+                            ) {
+                                LinearProgressIndicator(
+                                    progress = if (state.isAvailable) state.playbackPosition else 0f,
+                                    modifier = GlanceModifier.fillMaxSize().cornerRadius(2.dp),
+                                    color = scrubberFill,
+                                    backgroundColor = scrubberTrack,
+                                )
+                            }
 
-                        Spacer(GlanceModifier.height(3.dp))
+                            Spacer(GlanceModifier.height(3.dp))
 
-                        Row(
-                            modifier = GlanceModifier.fillMaxWidth().padding(horizontal = 1.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = if (state.isAvailable) elapsedStr else "0:00",
-                                style =
-                                    TextStyle(
-                                        color = textTertiary,
-                                        fontSize = 9.5.sp,
-                                        fontWeight = FontWeight.Normal,
-                                    ),
-                            )
-                            Spacer(GlanceModifier.defaultWeight())
-                            Text(
-                                text = if (state.isAvailable) remainingStr else "-0:00",
-                                style =
-                                    TextStyle(
-                                        color = textTertiary,
-                                        fontSize = 9.5.sp,
-                                        fontWeight = FontWeight.Normal,
-                                    ),
-                            )
+                            Row(
+                                modifier = GlanceModifier.fillMaxWidth().padding(horizontal = 1.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = if (state.isAvailable) elapsedStr else "0:00",
+                                    style =
+                                        TextStyle(
+                                            color = textTertiary,
+                                            fontSize = 9.5.sp,
+                                            fontWeight = FontWeight.Normal,
+                                        ),
+                                )
+                                Spacer(GlanceModifier.defaultWeight())
+                                Text(
+                                    text = if (state.isAvailable) remainingStr else "-0:00",
+                                    style =
+                                        TextStyle(
+                                            color = textTertiary,
+                                            fontSize = 9.5.sp,
+                                            fontWeight = FontWeight.Normal,
+                                        ),
+                                )
+                            }
                         }
 
                         Spacer(GlanceModifier.height(if (isCompact) 4.dp else 8.dp))

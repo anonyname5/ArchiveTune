@@ -10,6 +10,7 @@
 package moe.rukamori.archivetune.playback
 
 import android.app.ActivityManager
+import android.app.ActivityOptions
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -1266,6 +1267,14 @@ class MusicService :
                                 val lockscreenEnabled = preferences[LockscreenPlayerEnabledKey] ?: false
                                 if (!lockscreenEnabled || !player.isPlaying) return@launch
 
+                                val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+                                val lockWl =
+                                    pm?.newWakeLock(
+                                        PowerManager.PARTIAL_WAKE_LOCK,
+                                        "ArchiveTune:LockscreenAutoStart",
+                                    )
+                                lockWl?.acquire(3000L)
+
                                 val lockIntent =
                                     Intent(this@MusicService, LockscreenActivity::class.java).apply {
                                         action = ACTION_LOCKSCREEN_PLAYER
@@ -1274,7 +1283,42 @@ class MusicService :
                                                 Intent.FLAG_ACTIVITY_SINGLE_TOP or
                                                 Intent.FLAG_ACTIVITY_CLEAR_TOP
                                     }
-                                startActivity(lockIntent)
+
+                                val pendingIntent =
+                                    PendingIntent.getActivity(
+                                        this@MusicService,
+                                        2001,
+                                        lockIntent,
+                                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                                    )
+
+                                val options =
+                                    ActivityOptions.makeBasic().apply {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                            setPendingIntentBackgroundActivityStartMode(
+                                                ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED,
+                                            )
+                                        }
+                                    }
+
+                                try {
+                                    pendingIntent.send(
+                                        this@MusicService,
+                                        0,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        options.toBundle(),
+                                    )
+                                } catch (e: Exception) {
+                                    try {
+                                        startActivity(lockIntent)
+                                    } catch (_: Exception) {
+                                    }
+                                } finally {
+                                    if (lockWl?.isHeld == true) lockWl.release()
+                                }
                             }
                         }
                     }

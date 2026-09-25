@@ -24,6 +24,7 @@
         android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <queries>
         <intent>
@@ -280,10 +281,10 @@
 
         <activity
             android:name=".ui.screens.lockscreen.LockscreenActivity"
-            android:exported="false"
+            android:exported="true"
             android:excludeFromRecents="true"
             android:showWhenLocked="true"
-            android:turnScreenOn="false"
+            android:turnScreenOn="true"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.ArchiveTune.Transparent">
             <intent-filter>
