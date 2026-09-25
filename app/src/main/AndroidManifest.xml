@@ -278,6 +278,20 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".ui.screens.lockscreen.LockscreenActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="false"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.ArchiveTune.Transparent">
+            <intent-filter>
+                <action android:name="moe.rukamori.archivetune.action.LOCKSCREEN_PLAYER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name="androidx.media3.session.MediaButtonReceiver"
             android:exported="true">

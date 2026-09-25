@@ -53,6 +53,7 @@ import moe.rukamori.archivetune.constants.ExternalDownloaderEnabledKey
 import moe.rukamori.archivetune.constants.ExternalDownloaderPackageKey
 import moe.rukamori.archivetune.constants.HISTORY_DURATION_DEFAULT
 import moe.rukamori.archivetune.constants.HistoryDuration
+import moe.rukamori.archivetune.constants.LockscreenPlayerEnabledKey
 import moe.rukamori.archivetune.constants.PauseOnDeviceMuteKey
 import moe.rukamori.archivetune.constants.PermanentShuffleKey
 import moe.rukamori.archivetune.constants.PersistentQueueKey
@@ -218,6 +219,11 @@ fun PlayerSettings(navController: NavController) {
         rememberPreference(
             HistoryDuration,
             defaultValue = HISTORY_DURATION_DEFAULT,
+        )
+    val (lockscreenPlayerEnabled, onLockscreenPlayerEnabledChange) =
+        rememberPreference(
+            LockscreenPlayerEnabledKey,
+            defaultValue = false,
         )
 
     val (crossfadeEnabled, onCrossfadeEnabledChange) =
@@ -430,6 +436,16 @@ fun PlayerSettings(navController: NavController) {
                         icon = { Icon(painterResource(R.drawable.arrow_forward), null) },
                         checked = seekExtraSeconds,
                         onCheckedChange = onSeekExtraSeconds,
+                    )
+                }
+
+                item {
+                    SwitchPreference(
+                        title = { Text(stringResource(R.string.lockscreen_player_title)) },
+                        description = stringResource(R.string.lockscreen_player_description),
+                        icon = { Icon(painterResource(R.drawable.lock), null) },
+                        checked = lockscreenPlayerEnabled,
+                        onCheckedChange = onLockscreenPlayerEnabledChange,
                     )
                 }
 

@@ -744,4 +744,7 @@
     <string name="media_info_empty">No information available</string>
     <string name="media_info_load_error">Couldn’t load this information</string>
     <string name="media_info_itag" translatable="false">Itag</string>
+    <string name="lockscreen_player_title">Lockscreen Player</string>
+    <string name="lockscreen_player_description">Display Apple Liquid Glass player when screen wakes during playback</string>
+    <string name="lockscreen_swipe_up_hint">Swipe up to unlock</string>
 </resources>

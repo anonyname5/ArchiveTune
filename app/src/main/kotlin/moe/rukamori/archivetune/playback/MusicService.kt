@@ -125,6 +125,9 @@ import moe.rukamori.archivetune.R
 import moe.rukamori.archivetune.aod.ACTION_AOD_MODE
 import moe.rukamori.archivetune.constants.AodAutoStartScreenOffKey
 import moe.rukamori.archivetune.constants.AodModeEnabledKey
+import moe.rukamori.archivetune.constants.LockscreenPlayerEnabledKey
+import moe.rukamori.archivetune.ui.screens.lockscreen.ACTION_LOCKSCREEN_PLAYER
+import moe.rukamori.archivetune.ui.screens.lockscreen.LockscreenActivity
 import moe.rukamori.archivetune.cast.CastMediaItemResolver
 import moe.rukamori.archivetune.cast.CastPlaybackRepository
 import moe.rukamori.archivetune.cast.CastPlaybackRepositoryLocator
@@ -1214,42 +1217,74 @@ class MusicService :
         lastAudioOutputDeviceSignature = currentAudioOutputDeviceSignature()
         audioOutputResolver.refresh()
 
-        val screenOffFilter = IntentFilter(Intent.ACTION_SCREEN_OFF)
-        val screenReceiver = object : BroadcastReceiver() {
-            override fun onReceive(ctx: Context?, intent: Intent?) {
-                if (intent?.action != Intent.ACTION_SCREEN_OFF) return
-                scope.launch {
-                    val preferences = dataStore.data.first()
-                    val aodEnabled = preferences[AodModeEnabledKey] ?: false
-                    val autoStartAod = preferences[AodAutoStartScreenOffKey] ?: true
-                    if (!aodEnabled || !autoStartAod || !player.isPlaying) return@launch
+        val screenFilter =
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_SCREEN_ON)
+            }
+        val screenReceiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    ctx: Context?,
+                    intent: Intent?,
+                ) {
+                    when (intent?.action) {
+                        Intent.ACTION_SCREEN_OFF -> {
+                            scope.launch {
+                                val preferences = dataStore.data.first()
+                                val aodEnabled = preferences[AodModeEnabledKey] ?: false
+                                val autoStartAod = preferences[AodAutoStartScreenOffKey] ?: true
+                                if (!aodEnabled || !autoStartAod || !player.isPlaying) return@launch
 
-                    val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
-                    val aodLaunchWl = pm?.newWakeLock(
-                        PowerManager.PARTIAL_WAKE_LOCK,
-                        "ArchiveTune:AodAutoStart",
-                    )
-                    aodLaunchWl?.acquire(3000L)
+                                val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+                                val aodLaunchWl =
+                                    pm?.newWakeLock(
+                                        PowerManager.PARTIAL_WAKE_LOCK,
+                                        "ArchiveTune:AodAutoStart",
+                                    )
+                                aodLaunchWl?.acquire(3000L)
 
-                    val aodIntent = Intent(this@MusicService, MainActivity::class.java).apply {
-                        action = ACTION_AOD_MODE
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
-                            Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    }
-                    try {
-                        startActivity(aodIntent)
-                    } finally {
-                        if (aodLaunchWl?.isHeld == true) aodLaunchWl.release()
+                                val aodIntent =
+                                    Intent(this@MusicService, MainActivity::class.java).apply {
+                                        action = ACTION_AOD_MODE
+                                        flags =
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    }
+                                try {
+                                    startActivity(aodIntent)
+                                } finally {
+                                    if (aodLaunchWl?.isHeld == true) aodLaunchWl.release()
+                                }
+                            }
+                        }
+
+                        Intent.ACTION_SCREEN_ON -> {
+                            scope.launch {
+                                val preferences = dataStore.data.first()
+                                val lockscreenEnabled = preferences[LockscreenPlayerEnabledKey] ?: false
+                                if (!lockscreenEnabled || !player.isPlaying) return@launch
+
+                                val lockIntent =
+                                    Intent(this@MusicService, LockscreenActivity::class.java).apply {
+                                        action = ACTION_LOCKSCREEN_PLAYER
+                                        flags =
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                                                Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                    }
+                                startActivity(lockIntent)
+                            }
+                        }
                     }
                 }
             }
-        }
         aodScreenOffReceiver = screenReceiver
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(screenReceiver, screenOffFilter, Context.RECEIVER_EXPORTED)
+            registerReceiver(screenReceiver, screenFilter, Context.RECEIVER_EXPORTED)
         } else {
-            registerReceiver(screenReceiver, screenOffFilter)
+            registerReceiver(screenReceiver, screenFilter)
         }
 
         mediaLibrarySessionCallback.apply {

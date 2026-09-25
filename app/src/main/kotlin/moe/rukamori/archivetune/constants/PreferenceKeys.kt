@@ -42,6 +42,8 @@ val CanvasWifiOnlyKey = booleanPreferencesKey("canvasWifiOnly")
 val ThumbnailCornerRadiusKey = floatPreferencesKey("thumbnailCornerRadius")
 val CropThumbnailToSquareKey = booleanPreferencesKey("cropThumbnailToSquare")
 
+val LockscreenPlayerEnabledKey = booleanPreferencesKey("lockscreenPlayerEnabled")
+
 val AodModeEnabledKey = booleanPreferencesKey("aodModeEnabled")
 val AodThumbnailShapeKey = stringPreferencesKey("aodThumbnailShape")
 val AodThumbnailSizeKey = floatPreferencesKey("aodThumbnailSize")
