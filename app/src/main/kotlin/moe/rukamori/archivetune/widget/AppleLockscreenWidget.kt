@@ -8,7 +8,6 @@
 package moe.rukamori.archivetune.widget
 
 import android.content.Context
-import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -18,7 +17,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
@@ -67,75 +65,91 @@ class AppleLockscreenWidget : GlanceAppWidget() {
 private fun AppleLockscreenContent(context: Context) {
     val prefs = currentState<Preferences>()
     val state = prefs.toWidgetPlaybackState(context)
+    val palette = rememberWidgetPalette(state.dominantColor)
 
-    GlanceTheme(
-        colors =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                GlanceTheme.colors
-            } else {
-                ArchiveTuneWidgetColors.providers
-            },
+    val size = LocalSize.current
+    val compact = size.width < 280.dp || size.height < 120.dp
+    val showVolume = size.height >= 140.dp && size.width >= 240.dp
+
+    // Apple Pure Liquid Glass Palette (Decoupled from Android system Material You muddying)
+    val dominant = state.dominantColor?.let { Color(it) }
+
+    // 1. Crystal Smoked Glass Base (High Transparency ~32% so wallpaper shines through)
+    val glassBaseDark = Color(0x52181926)
+
+    // 2. Liquid Artwork Aura (Suspended fluid dye inside the glass)
+    val liquidAuraColor =
+        remember(dominant) {
+            dominant?.copy(alpha = 0.22f) ?: Color.Transparent
+        }
+
+    // 3. Floating Liquid Lens Highlight (for play/pause bubble)
+    val liquidLensBg =
+        remember(dominant) {
+            dominant?.let {
+                it.blendWith(Color.White, 0.35f).copy(alpha = 0.42f)
+            } ?: Color(0x44FFFFFF)
+        }
+
+    // Text & Accent Colors
+    val textPrimary = ColorProvider(Color.White)
+    val textSecondary = ColorProvider(Color(0xD8FFFFFF)) // Crisp semi-translucent white
+    val textTertiary = ColorProvider(Color(0xA0FFFFFF)) // Monospace timestamp
+    val airplayBlue = ColorProvider(Color(0xFF38A3FF)) // Vibrant Apple Liquid Blue
+    val airplayText = ColorProvider(Color(0xF5FFFFFF))
+    val scrubberTrack = ColorProvider(Color(0x28FFFFFF))
+    val scrubberFill = ColorProvider(Color.White)
+
+    // Position & remaining countdown calculation
+    val elapsedSec = (state.playbackPosition * 210).toInt()
+    val remainingSec = (210 - elapsedSec).coerceAtLeast(0)
+    val elapsedStr = "${elapsedSec / 60}:${(elapsedSec % 60).toString().padStart(2, '0')}"
+    val remainingStr = "-${remainingSec / 60}:${(remainingSec % 60).toString().padStart(2, '0')}"
+
+    // Layer 1: Outer Crystalline Specular Glass Bevel (46% pure white reflection rim)
+    Box(
+        modifier =
+            GlanceModifier
+                .fillMaxSize()
+                .background(Color(0x75FFFFFF))
+                .cornerRadius(26.dp)
+                .padding(1.2.dp)
+                .clickable(openArchiveTuneAction(context)),
     ) {
-        val palette = rememberWidgetPalette(state.dominantColor)
-        val size = LocalSize.current
-        val compact = size.width < 280.dp || size.height < 120.dp
-        val showVolume = size.height >= 140.dp && size.width >= 240.dp
-
-        // Apple Liquid Glass Palette
-        val dominant = state.dominantColor?.let { Color(it) }
-
-        // Liquid glass fluid base: translucent obsidian crystal infused with artwork dye
-        val liquidGlassBg =
-            remember(dominant) {
-                dominant?.let {
-                    val tinted = it.blendWith(Color(0xFF12131A), 0.78f)
-                    tinted.copy(alpha = 0.82f)
-                } ?: Color(0xD8181922)
-            }
-
-        // Crystalline liquid play/pause lens highlight
-        val liquidLensBg =
-            remember(dominant) {
-                dominant?.let {
-                    it.blendWith(Color(0xFFFFFFFF), 0.28f).copy(alpha = 0.36f)
-                } ?: Color(0x38FFFFFF)
-            }
-
-        val textPrimary = ColorProvider(Color.White)
-        val textSecondary = ColorProvider(Color(0xFFB0B0B8)) // iOS Liquid Secondary Label
-        val textTertiary = ColorProvider(Color(0x94FFFFFF)) // iOS Monospace Timestamp
-        val airplayBlue = ColorProvider(Color(0xFF0A84FF)) // iOS Electric Blue
-        val airplayText = ColorProvider(Color(0xEEFFFFFF))
-        val scrubberTrack = ColorProvider(Color(0x2EFFFFFF))
-        val scrubberFill = ColorProvider(Color.White)
-
-        // Estimated position & remaining countdown
-        val elapsedSec = (state.playbackPosition * 210).toInt()
-        val remainingSec = (210 - elapsedSec).coerceAtLeast(0)
-        val elapsedStr = "${elapsedSec / 60}:${(elapsedSec % 60).toString().padStart(2, '0')}"
-        val remainingStr = "-${remainingSec / 60}:${(remainingSec % 60).toString().padStart(2, '0')}"
-
-        // Outer Crystalline Specular Rim (Refracts light along outer bevel)
+        // Layer 2: Inner Refraction Depth Shadow (Creates 3D glass thickness)
         Box(
             modifier =
                 GlanceModifier
                     .fillMaxSize()
-                    .background(Color(0x40FFFFFF))
-                    .cornerRadius(26.dp)
-                    .padding(1.dp)
-                    .clickable(openArchiveTuneAction(context)),
+                    .background(Color(0x35000000))
+                    .cornerRadius(25.dp)
+                    .padding(0.8.dp),
         ) {
-            // Liquid Glass Body Container
+            // Layer 3: Highly Translucent Smoked Crystal Acrylic Base
             Box(
                 modifier =
                     GlanceModifier
                         .fillMaxSize()
-                        .background(liquidGlassBg)
-                        .cornerRadius(25.dp)
-                        .padding(if (compact) 9.dp else 13.dp),
+                        .background(glassBaseDark)
+                        .cornerRadius(24.dp),
             ) {
+                // Layer 4: Dynamic Liquid Artwork Dye Layer
+                if (state.dominantColor != null) {
+                    Box(
+                        modifier =
+                            GlanceModifier
+                                .fillMaxSize()
+                                .background(liquidAuraColor)
+                                .cornerRadius(24.dp),
+                    ) {}
+                }
+
+                // Layer 5: Glass Content & Specular Gleams
                 Column(
-                    modifier = GlanceModifier.fillMaxSize(),
+                    modifier =
+                        GlanceModifier
+                            .fillMaxSize()
+                            .padding(if (compact) 9.dp else 13.dp),
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
                     // Top Specular Gleam Line (Apple visionOS / liquid glass light reflection)
@@ -143,8 +157,8 @@ private fun AppleLockscreenContent(context: Context) {
                         modifier =
                             GlanceModifier
                                 .fillMaxWidth()
-                                .height(1.dp)
-                                .background(Color(0x48FFFFFF))
+                                .height(1.5.dp)
+                                .background(Color(0x95FFFFFF))
                                 .cornerRadius(1.dp),
                     ) {}
 
@@ -162,7 +176,7 @@ private fun AppleLockscreenContent(context: Context) {
                             modifier =
                                 GlanceModifier
                                     .size(artSize + 4.dp)
-                                    .background(Color(0x38FFFFFF))
+                                    .background(Color(0x65FFFFFF))
                                     .cornerRadius(14.dp)
                                     .padding(1.dp),
                         ) {
@@ -224,7 +238,7 @@ private fun AppleLockscreenContent(context: Context) {
                         Box(
                             modifier =
                                 GlanceModifier
-                                    .background(Color(0x36FFFFFF))
+                                    .background(Color(0x70FFFFFF))
                                     .cornerRadius(13.dp)
                                     .padding(1.dp),
                             contentAlignment = Alignment.Center,
@@ -232,7 +246,7 @@ private fun AppleLockscreenContent(context: Context) {
                             Box(
                                 modifier =
                                     GlanceModifier
-                                        .background(Color(0x28FFFFFF))
+                                        .background(Color(0x35FFFFFF))
                                         .cornerRadius(12.dp)
                                         .padding(horizontal = 8.dp, vertical = 3.dp),
                                 contentAlignment = Alignment.Center,
@@ -267,7 +281,7 @@ private fun AppleLockscreenContent(context: Context) {
                             GlanceModifier
                                 .fillMaxWidth()
                                 .height(if (compact) 3.5.dp else 4.dp)
-                                .background(Color(0x24FFFFFF))
+                                .background(Color(0x28FFFFFF))
                                 .cornerRadius(2.dp),
                     ) {
                         LinearProgressIndicator(
@@ -317,9 +331,9 @@ private fun AppleLockscreenContent(context: Context) {
                         Box(
                             modifier =
                                 GlanceModifier
-                                    .size(if (compact) 36.dp else 40.dp)
-                                    .background(Color(0x30FFFFFF))
-                                    .cornerRadius(20.dp)
+                                    .size(if (compact) 36.dp else 42.dp)
+                                    .background(Color(0x55FFFFFF))
+                                    .cornerRadius(21.dp)
                                     .padding(1.dp),
                             contentAlignment = Alignment.Center,
                         ) {
@@ -327,8 +341,8 @@ private fun AppleLockscreenContent(context: Context) {
                                 modifier =
                                     GlanceModifier
                                         .fillMaxSize()
-                                        .background(Color(0x1CFFFFFF))
-                                        .cornerRadius(19.dp)
+                                        .background(Color(0x28FFFFFF))
+                                        .cornerRadius(20.dp)
                                         .clickable(skipPreviousAction()),
                                 contentAlignment = Alignment.Center,
                             ) {
@@ -336,7 +350,7 @@ private fun AppleLockscreenContent(context: Context) {
                                     provider = ImageProvider(R.drawable.skip_previous),
                                     contentDescription = context.getString(R.string.widget_previous),
                                     colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
-                                    modifier = GlanceModifier.size(if (compact) 18.dp else 20.dp),
+                                    modifier = GlanceModifier.size(if (compact) 18.dp else 22.dp),
                                 )
                             }
                         }
@@ -347,9 +361,9 @@ private fun AppleLockscreenContent(context: Context) {
                         Box(
                             modifier =
                                 GlanceModifier
-                                    .size(if (compact) 42.dp else 48.dp)
-                                    .background(Color(0x54FFFFFF))
-                                    .cornerRadius(if (compact) 21.dp else 24.dp)
+                                    .size(if (compact) 42.dp else 50.dp)
+                                    .background(Color(0x90FFFFFF))
+                                    .cornerRadius(if (compact) 21.dp else 25.dp)
                                     .padding(1.2.dp),
                             contentAlignment = Alignment.Center,
                         ) {
@@ -358,7 +372,7 @@ private fun AppleLockscreenContent(context: Context) {
                                     GlanceModifier
                                         .fillMaxSize()
                                         .background(liquidLensBg)
-                                        .cornerRadius(if (compact) 20.dp else 23.dp)
+                                        .cornerRadius(if (compact) 20.dp else 24.dp)
                                         .clickable(playPauseAction()),
                                 contentAlignment = Alignment.Center,
                             ) {
@@ -372,7 +386,7 @@ private fun AppleLockscreenContent(context: Context) {
                                             if (state.isPlaying) R.string.widget_pause else R.string.play,
                                         ),
                                     colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
-                                    modifier = GlanceModifier.size(if (compact) 22.dp else 25.dp),
+                                    modifier = GlanceModifier.size(if (compact) 22.dp else 26.dp),
                                 )
                             }
                         }
@@ -383,9 +397,9 @@ private fun AppleLockscreenContent(context: Context) {
                         Box(
                             modifier =
                                 GlanceModifier
-                                    .size(if (compact) 36.dp else 40.dp)
-                                    .background(Color(0x30FFFFFF))
-                                    .cornerRadius(20.dp)
+                                    .size(if (compact) 36.dp else 42.dp)
+                                    .background(Color(0x55FFFFFF))
+                                    .cornerRadius(21.dp)
                                     .padding(1.dp),
                             contentAlignment = Alignment.Center,
                         ) {
@@ -393,8 +407,8 @@ private fun AppleLockscreenContent(context: Context) {
                                 modifier =
                                     GlanceModifier
                                         .fillMaxSize()
-                                        .background(Color(0x1CFFFFFF))
-                                        .cornerRadius(19.dp)
+                                        .background(Color(0x28FFFFFF))
+                                        .cornerRadius(20.dp)
                                         .clickable(skipNextAction()),
                                 contentAlignment = Alignment.Center,
                             ) {
@@ -402,7 +416,7 @@ private fun AppleLockscreenContent(context: Context) {
                                     provider = ImageProvider(R.drawable.skip_next),
                                     contentDescription = context.getString(R.string.next),
                                     colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
-                                    modifier = GlanceModifier.size(if (compact) 18.dp else 20.dp),
+                                    modifier = GlanceModifier.size(if (compact) 18.dp else 22.dp),
                                 )
                             }
                         }
@@ -444,7 +458,7 @@ private fun AppleLockscreenContent(context: Context) {
                                             GlanceModifier
                                                 .defaultWeight()
                                                 .fillMaxHeight()
-                                                .background(Color(0x75FFFFFF))
+                                                .background(Color(0x85FFFFFF))
                                                 .cornerRadius(1.5.dp),
                                     ) {}
                                     Spacer(GlanceModifier.width(2.dp))
