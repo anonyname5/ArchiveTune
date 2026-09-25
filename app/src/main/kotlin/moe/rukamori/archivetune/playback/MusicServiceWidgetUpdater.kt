@@ -36,8 +36,12 @@ import moe.rukamori.archivetune.R
 import moe.rukamori.archivetune.extensions.SilentHandler
 import moe.rukamori.archivetune.utils.reportException
 import moe.rukamori.archivetune.widget.AlbumArtWidget
+import moe.rukamori.archivetune.widget.AnalogVuMeterWidget
+import moe.rukamori.archivetune.widget.CassetteTapeWidget
+import moe.rukamori.archivetune.widget.CdJewelCaseWidget
 import moe.rukamori.archivetune.widget.ListeningInsightsWidget
 import moe.rukamori.archivetune.widget.LoadWidgetInsightsUseCase
+import moe.rukamori.archivetune.widget.LofiPixelRoomWidget
 import moe.rukamori.archivetune.widget.MusicWidget
 import moe.rukamori.archivetune.widget.MusicWidgetKeys
 import moe.rukamori.archivetune.widget.NowPlayingCardWidget
@@ -45,7 +49,13 @@ import moe.rukamori.archivetune.widget.PlaybackCapsuleWidget
 import moe.rukamori.archivetune.widget.PlaybackCommandWidget
 import moe.rukamori.archivetune.widget.PlaybackDeckWidget
 import moe.rukamori.archivetune.widget.PlaybackSpotlightWidget
+import moe.rukamori.archivetune.widget.PolaroidPhotoWidget
+import moe.rukamori.archivetune.widget.RetroClickWheelWidget
+import moe.rukamori.archivetune.widget.SynthwaveDashboardWidget
+import moe.rukamori.archivetune.widget.VinylTurntableWidget
+import moe.rukamori.archivetune.widget.VoyagerCosmicWidget
 import moe.rukamori.archivetune.widget.WidgetInsightsSnapshot
+import moe.rukamori.archivetune.widget.ZenTanzakuWidget
 import moe.rukamori.archivetune.widget.toWidgetPreferenceValue
 import java.io.File
 
@@ -340,6 +350,16 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(PlaybackCapsuleWidget::class.java, PlaybackCapsuleWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(PlaybackCommandWidget::class.java, PlaybackCommandWidget()),
+                WidgetTarget(VinylTurntableWidget::class.java, VinylTurntableWidget()),
+                WidgetTarget(CassetteTapeWidget::class.java, CassetteTapeWidget()),
+                WidgetTarget(RetroClickWheelWidget::class.java, RetroClickWheelWidget()),
+                WidgetTarget(CdJewelCaseWidget::class.java, CdJewelCaseWidget()),
+                WidgetTarget(AnalogVuMeterWidget::class.java, AnalogVuMeterWidget()),
+                WidgetTarget(PolaroidPhotoWidget::class.java, PolaroidPhotoWidget()),
+                WidgetTarget(LofiPixelRoomWidget::class.java, LofiPixelRoomWidget()),
+                WidgetTarget(SynthwaveDashboardWidget::class.java, SynthwaveDashboardWidget()),
+                WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
+                WidgetTarget(VoyagerCosmicWidget::class.java, VoyagerCosmicWidget()),
                 WidgetTarget(
                     widgetClass = ListeningInsightsWidget::class.java,
                     widget = ListeningInsightsWidget(),
@@ -355,6 +375,16 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(PlaybackCapsuleWidget::class.java, PlaybackCapsuleWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(PlaybackCommandWidget::class.java, PlaybackCommandWidget()),
+                WidgetTarget(VinylTurntableWidget::class.java, VinylTurntableWidget()),
+                WidgetTarget(CassetteTapeWidget::class.java, CassetteTapeWidget()),
+                WidgetTarget(RetroClickWheelWidget::class.java, RetroClickWheelWidget()),
+                WidgetTarget(CdJewelCaseWidget::class.java, CdJewelCaseWidget()),
+                WidgetTarget(AnalogVuMeterWidget::class.java, AnalogVuMeterWidget()),
+                WidgetTarget(PolaroidPhotoWidget::class.java, PolaroidPhotoWidget()),
+                WidgetTarget(LofiPixelRoomWidget::class.java, LofiPixelRoomWidget()),
+                WidgetTarget(SynthwaveDashboardWidget::class.java, SynthwaveDashboardWidget()),
+                WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
+                WidgetTarget(VoyagerCosmicWidget::class.java, VoyagerCosmicWidget()),
             )
     }
 }

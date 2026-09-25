@@ -373,6 +373,116 @@
         android:resource="@xml/widget_listening_insights_info" />
 </receiver>
 
+<receiver
+    android:name=".widget.VinylTurntableWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_vinyl_turntable_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.CassetteTapeWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_cassette_tape_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.RetroClickWheelWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_retro_click_wheel_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.CdJewelCaseWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_cd_jewel_case_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.AnalogVuMeterWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_analog_vu_meter_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.PolaroidPhotoWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_polaroid_photo_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.LofiPixelRoomWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_lofi_pixel_room_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.SynthwaveDashboardWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_synthwave_dashboard_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.ZenTanzakuWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_zen_tanzaku_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.VoyagerCosmicWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_voyager_cosmic_info" />
+</receiver>
+
 
         <meta-data
             android:name="com.google.android.gms.car.application"
