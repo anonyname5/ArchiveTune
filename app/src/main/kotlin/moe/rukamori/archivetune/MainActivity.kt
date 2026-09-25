@@ -352,6 +352,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 isMusicServiceBound = true
                 if (service is MusicBinder) {
+                    playerConnection?.dispose()
                     playerConnection =
                         PlayerConnection(this@MainActivity, service, database, lifecycleScope)
                     playPendingDeepLinkQueueIfReady()
@@ -488,8 +489,11 @@ class MainActivity : ComponentActivity() {
             playerConnection?.service?.stopAndClearPlayback(clearPersistentState = true)
             safeUnbindMusicService()
             stopService(Intent(this, MusicService::class.java))
-            playerConnection = null
+        } else {
+            safeUnbindMusicService()
         }
+        playerConnection?.dispose()
+        playerConnection = null
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

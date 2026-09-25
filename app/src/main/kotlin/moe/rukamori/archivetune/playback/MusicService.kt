@@ -360,7 +360,7 @@ class MusicService :
     private var scopeJob = SupervisorJob()
     private var scope = CoroutineScope(Dispatchers.Main + scopeJob)
     private var ioScope = CoroutineScope(Dispatchers.IO + scopeJob)
-    private val binder = MusicBinder()
+    private val binder = MusicBinder(this)
     private var hasBoundClients = false
     private var idleStopJob: Job? = null
 
@@ -8351,6 +8351,7 @@ class MusicService :
         }
         nextStreamPreloader.cancel()
         scopeJob.cancel()
+        binder.detach()
     }
 
     override fun onBind(intent: Intent?): android.os.IBinder? {
@@ -8520,9 +8521,19 @@ class MusicService :
         widgetUpdater.updateProgressTracking()
     }
 
-    inner class MusicBinder : Binder() {
+    class MusicBinder(service: MusicService) : Binder() {
+        private var serviceRef: java.lang.ref.WeakReference<MusicService>? = java.lang.ref.WeakReference(service)
+
         val service: MusicService
-            get() = this@MusicService
+            get() = serviceRef?.get() ?: error("MusicService has been destroyed")
+
+        val serviceOrNull: MusicService?
+            get() = serviceRef?.get()
+
+        internal fun detach() {
+            serviceRef?.clear()
+            serviceRef = null
+        }
     }
 
     companion object {
