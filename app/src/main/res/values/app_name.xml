@@ -31,5 +31,5 @@
     <string name="widget_expressive_petal_description">Material 3 expressive scalloped flower shape with organic geometry and orbiting pill controls</string>
     <string name="widget_music_hub_description">All-in-one command center with now playing deck and 1-tap quick launch library shortcuts</string>
     <string name="widget_queue_flow_description">DJ deck showing currently playing track alongside upcoming queued songs</string>
-    <string name="widget_apple_lockscreen_description">iOS lock screen music player with frosted glass, AirPlay badge, scrubber, and media controls</string>
+    <string name="widget_apple_lockscreen_description">Apple-style liquid glass lock screen music player with specular acrylic highlights, AirPlay capsule, and fluid controls</string>
 </resources>
