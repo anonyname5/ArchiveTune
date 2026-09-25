@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Apple SF Pro pause.fill dual rounded capsule bars -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M7.4,4.5 C8.6,4.5 9.5,5.4 9.5,6.6 L9.5,17.4 C9.5,18.6 8.6,19.5 7.4,19.5 C6.2,19.5 5.3,18.6 5.3,17.4 L5.3,6.6 C5.3,5.4 6.2,4.5 7.4,4.5 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M16.6,4.5 C17.8,4.5 18.7,5.4 18.7,6.6 L18.7,17.4 C18.7,18.6 17.8,19.5 16.6,19.5 C15.4,19.5 14.5,18.6 14.5,17.4 L14.5,6.6 C14.5,5.4 15.4,4.5 16.6,4.5 Z" />
+</vector>

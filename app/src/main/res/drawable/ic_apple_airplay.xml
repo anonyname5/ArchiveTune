@@ -3,20 +3,20 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <!-- AirPlay base triangle -->
+    <!-- Apple SF Pro airplay.audio base rounded triangle -->
     <path
         android:fillColor="@android:color/white"
-        android:pathData="M12,14.5 L6,21 L18,21 Z" />
-    <!-- AirPlay inner concentric audio arc -->
+        android:pathData="M11.2,14.6 C11.6,14.0 12.4,14.0 12.8,14.6 L17.4,20.2 C17.9,20.8 17.5,21.6 16.7,21.6 L7.3,21.6 C6.5,21.6 6.1,20.8 6.6,20.2 Z" />
+    <!-- AirPlay inner audio arc -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="1.7"
+        android:strokeWidth="1.8"
         android:strokeLineCap="round"
-        android:pathData="M8.5,12 C9.5,10.9 10.7,10.3 12,10.3 C13.3,10.3 14.5,10.9 15.5,12" />
-    <!-- AirPlay outer concentric audio arc -->
+        android:pathData="M8.8,11.8 C9.7,10.8 10.8,10.2 12.0,10.2 C13.2,10.2 14.3,10.8 15.2,11.8" />
+    <!-- AirPlay outer audio arc -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="1.7"
+        android:strokeWidth="1.8"
         android:strokeLineCap="round"
-        android:pathData="M5.5,8.8 C7.3,6.8 9.5,5.7 12,5.7 C14.5,5.7 16.7,6.8 18.5,8.8" />
+        android:pathData="M6.0,8.6 C7.5,6.8 9.7,5.7 12.0,5.7 C14.3,5.7 16.5,6.8 18.0,8.6" />
 </vector>
