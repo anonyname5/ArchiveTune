@@ -37,20 +37,32 @@ import moe.rukamori.archivetune.extensions.SilentHandler
 import moe.rukamori.archivetune.utils.reportException
 import moe.rukamori.archivetune.widget.AlbumArtWidget
 import moe.rukamori.archivetune.widget.AnalogVuMeterWidget
+import moe.rukamori.archivetune.widget.BraunMinimalistWidget
 import moe.rukamori.archivetune.widget.CassetteTapeWidget
 import moe.rukamori.archivetune.widget.CdJewelCaseWidget
+import moe.rukamori.archivetune.widget.ChromaticAuraWidget
+import moe.rukamori.archivetune.widget.ConcertTicketWidget
+import moe.rukamori.archivetune.widget.ExpressivePetalWidget
+import moe.rukamori.archivetune.widget.GameBoyConsoleWidget
 import moe.rukamori.archivetune.widget.ListeningInsightsWidget
 import moe.rukamori.archivetune.widget.LoadWidgetInsightsUseCase
 import moe.rukamori.archivetune.widget.LofiPixelRoomWidget
+import moe.rukamori.archivetune.widget.ModularSynthWidget
+import moe.rukamori.archivetune.widget.MusicHubWidget
 import moe.rukamori.archivetune.widget.MusicWidget
 import moe.rukamori.archivetune.widget.MusicWidgetKeys
+import moe.rukamori.archivetune.widget.NeonJukeboxWidget
 import moe.rukamori.archivetune.widget.NowPlayingCardWidget
 import moe.rukamori.archivetune.widget.PlaybackCapsuleWidget
 import moe.rukamori.archivetune.widget.PlaybackCommandWidget
 import moe.rukamori.archivetune.widget.PlaybackDeckWidget
 import moe.rukamori.archivetune.widget.PlaybackSpotlightWidget
 import moe.rukamori.archivetune.widget.PolaroidPhotoWidget
+import moe.rukamori.archivetune.widget.QueueFlowWidget
+import moe.rukamori.archivetune.widget.ReelToReelWidget
 import moe.rukamori.archivetune.widget.RetroClickWheelWidget
+import moe.rukamori.archivetune.widget.SoundwaveEqualizerWidget
+import moe.rukamori.archivetune.widget.SwissBrutalistWidget
 import moe.rukamori.archivetune.widget.SynthwaveDashboardWidget
 import moe.rukamori.archivetune.widget.VinylTurntableWidget
 import moe.rukamori.archivetune.widget.VoyagerCosmicWidget
@@ -360,6 +372,18 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(SynthwaveDashboardWidget::class.java, SynthwaveDashboardWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
                 WidgetTarget(VoyagerCosmicWidget::class.java, VoyagerCosmicWidget()),
+                WidgetTarget(ConcertTicketWidget::class.java, ConcertTicketWidget()),
+                WidgetTarget(GameBoyConsoleWidget::class.java, GameBoyConsoleWidget()),
+                WidgetTarget(NeonJukeboxWidget::class.java, NeonJukeboxWidget()),
+                WidgetTarget(ReelToReelWidget::class.java, ReelToReelWidget()),
+                WidgetTarget(ModularSynthWidget::class.java, ModularSynthWidget()),
+                WidgetTarget(BraunMinimalistWidget::class.java, BraunMinimalistWidget()),
+                WidgetTarget(SwissBrutalistWidget::class.java, SwissBrutalistWidget()),
+                WidgetTarget(ChromaticAuraWidget::class.java, ChromaticAuraWidget()),
+                WidgetTarget(SoundwaveEqualizerWidget::class.java, SoundwaveEqualizerWidget()),
+                WidgetTarget(ExpressivePetalWidget::class.java, ExpressivePetalWidget()),
+                WidgetTarget(MusicHubWidget::class.java, MusicHubWidget()),
+                WidgetTarget(QueueFlowWidget::class.java, QueueFlowWidget()),
                 WidgetTarget(
                     widgetClass = ListeningInsightsWidget::class.java,
                     widget = ListeningInsightsWidget(),
@@ -385,6 +409,18 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(SynthwaveDashboardWidget::class.java, SynthwaveDashboardWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
                 WidgetTarget(VoyagerCosmicWidget::class.java, VoyagerCosmicWidget()),
+                WidgetTarget(ConcertTicketWidget::class.java, ConcertTicketWidget()),
+                WidgetTarget(GameBoyConsoleWidget::class.java, GameBoyConsoleWidget()),
+                WidgetTarget(NeonJukeboxWidget::class.java, NeonJukeboxWidget()),
+                WidgetTarget(ReelToReelWidget::class.java, ReelToReelWidget()),
+                WidgetTarget(ModularSynthWidget::class.java, ModularSynthWidget()),
+                WidgetTarget(BraunMinimalistWidget::class.java, BraunMinimalistWidget()),
+                WidgetTarget(SwissBrutalistWidget::class.java, SwissBrutalistWidget()),
+                WidgetTarget(ChromaticAuraWidget::class.java, ChromaticAuraWidget()),
+                WidgetTarget(SoundwaveEqualizerWidget::class.java, SoundwaveEqualizerWidget()),
+                WidgetTarget(ExpressivePetalWidget::class.java, ExpressivePetalWidget()),
+                WidgetTarget(MusicHubWidget::class.java, MusicHubWidget()),
+                WidgetTarget(QueueFlowWidget::class.java, QueueFlowWidget()),
             )
     }
 }

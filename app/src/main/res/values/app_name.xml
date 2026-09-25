@@ -19,4 +19,16 @@
     <string name="widget_synthwave_dashboard_description">Cyberpunk 80s supercar digital dashboard with RPM progress and neon controls</string>
     <string name="widget_zen_tanzaku_description">Minimalist Japanese washi paper slip with Ensō brush circle and Hanko seal</string>
     <string name="widget_voyager_cosmic_description">NASA Voyager Golden Record with orbital spacecraft progress and deep space starfield</string>
+    <string name="widget_concert_ticket_description">Vintage perforated concert ticket stub with barcode, seat info, and tear-off controls</string>
+    <string name="widget_gameboy_console_description">1989 handheld gaming console with olive dot-matrix LCD screen, D-pad, and action buttons</string>
+    <string name="widget_neon_jukebox_description">1950s chrome diner jukebox with bubbling neon arch, flip title strips, and coin drop play button</string>
+    <string name="widget_reel_to_reel_description">Vintage studio reel-to-reel master tape machine with dual spinning aluminum reels and counter</string>
+    <string name="widget_modular_synth_description">Eurorack modular synthesizer rack with oscilloscope waveform display, patch cables, and dials</string>
+    <string name="widget_braun_minimalist_description">Dieter Rams Bauhaus minimalist audio with acoustic speaker grille and signature orange power dial</string>
+    <string name="widget_swiss_brutalist_description">Bold Swiss international typographic poster with high-contrast geometry and track metadata</string>
+    <string name="widget_chromatic_aura_description">Ambient fluid liquid mood orb with frosted glassmorphism and artwork-derived glow</string>
+    <string name="widget_soundwave_equalizer_description">High-tech audio spectrum visualizer with dynamic equalizer frequency bars and scrub bar</string>
+    <string name="widget_expressive_petal_description">Material 3 expressive scalloped flower shape with organic geometry and orbiting pill controls</string>
+    <string name="widget_music_hub_description">All-in-one command center with now playing deck and 1-tap quick launch library shortcuts</string>
+    <string name="widget_queue_flow_description">DJ deck showing currently playing track alongside upcoming queued songs</string>
 </resources>

@@ -483,6 +483,138 @@
         android:resource="@xml/widget_voyager_cosmic_info" />
 </receiver>
 
+<receiver
+    android:name=".widget.ConcertTicketWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_concert_ticket_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.GameBoyConsoleWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_gameboy_console_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.NeonJukeboxWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_neon_jukebox_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.ReelToReelWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_reel_to_reel_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.ModularSynthWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_modular_synth_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.BraunMinimalistWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_braun_minimalist_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.SwissBrutalistWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_swiss_brutalist_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.ChromaticAuraWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_chromatic_aura_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.SoundwaveEqualizerWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_soundwave_equalizer_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.ExpressivePetalWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_expressive_petal_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.MusicHubWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_music_hub_info" />
+</receiver>
+
+<receiver
+    android:name=".widget.QueueFlowWidgetReceiver"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/widget_queue_flow_info" />
+</receiver>
+
 
         <meta-data
             android:name="com.google.android.gms.car.application"
