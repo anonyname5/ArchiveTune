@@ -95,6 +95,8 @@ import moe.rukamori.archivetune.constants.LyricsBackgroundStyle
 import moe.rukamori.archivetune.constants.LyricsBackgroundStyleKey
 import moe.rukamori.archivetune.constants.MiniPlayerBackgroundStyle
 import moe.rukamori.archivetune.constants.MiniPlayerBackgroundStyleKey
+import moe.rukamori.archivetune.constants.NavigationBarBackgroundStyle
+import moe.rukamori.archivetune.constants.NavigationBarBackgroundStyleKey
 import moe.rukamori.archivetune.constants.PlayerBackgroundStyle
 import moe.rukamori.archivetune.constants.PlayerBackgroundStyleKey
 import moe.rukamori.archivetune.constants.PlayerButtonsStyle
@@ -208,6 +210,11 @@ fun AppearanceSettings(navController: NavController) {
         rememberEnumPreference(
             MiniPlayerBackgroundStyleKey,
             defaultValue = MiniPlayerBackgroundStyle.THEME,
+        )
+    val (navigationBarBackground, onNavigationBarBackgroundChange) =
+        rememberEnumPreference(
+            NavigationBarBackgroundStyleKey,
+            defaultValue = NavigationBarBackgroundStyle.THEME,
         )
     val (pureBlack, onPureBlackChange) = rememberPreference(PureBlackKey, defaultValue = false)
     val (disableBlur, onDisableBlurChange) = rememberPreference(DisableBlurKey, defaultValue = false)
@@ -846,6 +853,22 @@ fun AppearanceSettings(navController: NavController) {
                                 MiniPlayerBackgroundStyle.THEME -> stringResource(R.string.follow_theme)
                                 MiniPlayerBackgroundStyle.GRADIENT -> stringResource(R.string.gradient)
                                 MiniPlayerBackgroundStyle.GLOW -> stringResource(R.string.glow)
+                            }
+                        },
+                    )
+                }
+
+                item {
+                    EnumListPreference(
+                        title = { Text(stringResource(R.string.navigation_bar_background_style)) },
+                        icon = { Icon(painterResource(R.drawable.nav_bar), null) },
+                        selectedValue = navigationBarBackground,
+                        onValueSelected = onNavigationBarBackgroundChange,
+                        valueText = {
+                            when (it) {
+                                NavigationBarBackgroundStyle.THEME -> stringResource(R.string.follow_theme)
+                                NavigationBarBackgroundStyle.GRADIENT -> stringResource(R.string.gradient)
+                                NavigationBarBackgroundStyle.GLOW -> stringResource(R.string.glow)
                             }
                         },
                     )

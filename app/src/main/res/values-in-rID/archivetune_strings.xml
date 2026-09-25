@@ -323,6 +323,7 @@
     <string name="lyrics_background_style">Gaya latar belakang lirik</string>
     <string name="lyrics_background_default">Bawaan</string>
     <string name="mini_player_background_style">Gaya latar belakang pemutar mini</string>
+    <string name="navigation_bar_background_style">Gaya latar belakang bilah navigasi</string>
     <string name="follow_theme">Ikuti tema</string>
     <string name="gradient">Gradien</string>
     <string name="player_design_style">Gaya desain pemutar</string>
