@@ -48,10 +48,16 @@ val discordApplicationIdLong = discordApplicationId.toLongOrNull() ?: 1165706613
 val discordRedirectScheme = "discord-$discordApplicationId"
 val releaseKeystoreFile = file("keystore/release.keystore")
 val releaseStorePassword =
-    System.getenv("STORE_PASSWORD")?.takeIf { it.isNotBlank() }
+    localProperties.getProperty("KEYSTORE_PASSWORD")?.takeIf { it.isNotBlank() }
+        ?: localProperties.getProperty("STORE_PASSWORD")?.takeIf { it.isNotBlank() }
+        ?: System.getenv("STORE_PASSWORD")?.takeIf { it.isNotBlank() }
         ?: System.getenv("KEYSTORE_PASSWORD")?.takeIf { it.isNotBlank() }
-val releaseKeyAlias = System.getenv("KEY_ALIAS")?.takeIf { it.isNotBlank() }
-val releaseKeyPassword = System.getenv("KEY_PASSWORD")?.takeIf { it.isNotBlank() }
+val releaseKeyAlias =
+    localProperties.getProperty("KEY_ALIAS")?.takeIf { it.isNotBlank() }
+        ?: System.getenv("KEY_ALIAS")?.takeIf { it.isNotBlank() }
+val releaseKeyPassword =
+    localProperties.getProperty("KEY_PASSWORD")?.takeIf { it.isNotBlank() }
+        ?: System.getenv("KEY_PASSWORD")?.takeIf { it.isNotBlank() }
 val hasReleaseSigningConfig =
     releaseKeystoreFile.isFile &&
         releaseStorePassword != null &&
