@@ -393,7 +393,7 @@ private fun calculateInSampleSize(
 
 private fun Color.isDark(): Boolean = red * 0.299f + green * 0.587f + blue * 0.114f < 0.52f
 
-private fun Color.blendWith(
+internal fun Color.blendWith(
     other: Color,
     fraction: Float,
 ): Color {

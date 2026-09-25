@@ -37,6 +37,7 @@ import moe.rukamori.archivetune.extensions.SilentHandler
 import moe.rukamori.archivetune.utils.reportException
 import moe.rukamori.archivetune.widget.AlbumArtWidget
 import moe.rukamori.archivetune.widget.AnalogVuMeterWidget
+import moe.rukamori.archivetune.widget.AppleLockscreenWidget
 import moe.rukamori.archivetune.widget.BraunMinimalistWidget
 import moe.rukamori.archivetune.widget.CassetteTapeWidget
 import moe.rukamori.archivetune.widget.CdJewelCaseWidget
@@ -384,6 +385,7 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(ExpressivePetalWidget::class.java, ExpressivePetalWidget()),
                 WidgetTarget(MusicHubWidget::class.java, MusicHubWidget()),
                 WidgetTarget(QueueFlowWidget::class.java, QueueFlowWidget()),
+                WidgetTarget(AppleLockscreenWidget::class.java, AppleLockscreenWidget()),
                 WidgetTarget(
                     widgetClass = ListeningInsightsWidget::class.java,
                     widget = ListeningInsightsWidget(),
@@ -421,6 +423,7 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(ExpressivePetalWidget::class.java, ExpressivePetalWidget()),
                 WidgetTarget(MusicHubWidget::class.java, MusicHubWidget()),
                 WidgetTarget(QueueFlowWidget::class.java, QueueFlowWidget()),
+                WidgetTarget(AppleLockscreenWidget::class.java, AppleLockscreenWidget()),
             )
     }
 }
