@@ -9,7 +9,6 @@ package moe.rukamori.archivetune.ui.screens.lockscreen
 
 import android.content.Context
 import android.media.AudioManager
-import android.text.format.DateFormat
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -53,8 +52,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
@@ -67,7 +64,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,14 +73,10 @@ import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import moe.rukamori.archivetune.R
 import moe.rukamori.archivetune.models.MediaMetadata
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
@@ -105,27 +97,7 @@ fun LockscreenPlayerContent(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // 1. Clock & Date
-    var currentTime by remember { mutableStateOf(LocalTime.now()) }
-    var currentDate by remember { mutableStateOf(LocalDate.now()) }
-
-    LaunchedEffect(Unit) {
-        while (isActive) {
-            currentTime = LocalTime.now()
-            currentDate = LocalDate.now()
-            delay(1000L)
-        }
-    }
-
-    val is24Hour = DateFormat.is24HourFormat(context)
-    val timeFormatter = remember(is24Hour) {
-        DateTimeFormatter.ofPattern(if (is24Hour) "HH:mm" else "h:mm")
-    }
-    val dateFormatter = remember {
-        DateTimeFormatter.ofPattern("EEEE, MMMM d")
-    }
-
-    // 2. Dynamic Dominant Color Extraction from Album Art
+    // 1. Dynamic Dominant Color Extraction from Album Art
     var dominantColor by remember { mutableStateOf<Color?>(null) }
     LaunchedEffect(mediaMetadata.thumbnailUrl) {
         val url = mediaMetadata.thumbnailUrl ?: return@LaunchedEffect
@@ -142,7 +114,7 @@ fun LockscreenPlayerContent(
         }
     }
 
-    // 3. Audio Volume Control
+    // 2. Audio Volume Control
     val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager }
     val maxVolume = remember(audioManager) {
         audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC)?.coerceAtLeast(1) ?: 15
@@ -154,7 +126,7 @@ fun LockscreenPlayerContent(
         )
     }
 
-    // 4. Position & Duration Calculations
+    // 3. Position & Duration Calculations
     var isSeeking by remember { mutableStateOf(false) }
     var seekPosition by remember { mutableFloatStateOf(0f) }
 
@@ -167,15 +139,15 @@ fun LockscreenPlayerContent(
     val elapsedStr = "${elapsedSeconds / 60}:${(elapsedSeconds % 60).toString().padStart(2, '0')}"
     val remainingStr = "-${remainingSeconds / 60}:${(remainingSeconds % 60).toString().padStart(2, '0')}"
 
-    // 5. Swipe-to-Dismiss / Unlock Drag Animation
+    // 4. Swipe-to-Dismiss / Drag Animation
     val dismissOffsetY = remember { Animatable(0f) }
     var totalDragY by remember { mutableFloatStateOf(0f) }
 
-    // Pulsing Ambient Backglow Transition
+    // Pulsing Ambient Backglow
     val infiniteTransition = rememberInfiniteTransition(label = "ambientGlow")
     val auraAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.22f,
-        targetValue = 0.42f,
+        initialValue = 0.20f,
+        targetValue = 0.40f,
         animationSpec = infiniteRepeatable(
             animation = tween(4000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse,
@@ -183,169 +155,102 @@ fun LockscreenPlayerContent(
         label = "auraAlpha",
     )
 
+    // Root Container: Translucent with Click-Outside to Dismiss
     Box(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(Color.Black)
-                .offset { IntOffset(0, dismissOffsetY.value.roundToInt()) }
-                .pointerInput(Unit) {
-                    detectVerticalDragGestures(
-                        onVerticalDrag = { _, dragAmount ->
-                            totalDragY += dragAmount
-                            if (totalDragY < 0) {
-                                scope.launch {
-                                    dismissOffsetY.snapTo(totalDragY)
-                                }
-                            }
-                        },
-                        onDragEnd = {
-                            if (totalDragY < -150f) {
-                                scope.launch {
-                                    dismissOffsetY.animateTo(
-                                        targetValue = -1200f,
-                                        animationSpec = tween(220, easing = FastOutSlowInEasing),
-                                    )
-                                    onDismiss()
-                                }
-                            } else {
-                                scope.launch {
-                                    dismissOffsetY.animateTo(
-                                        targetValue = 0f,
-                                        animationSpec = tween(250, easing = FastOutSlowInEasing),
-                                    )
-                                    totalDragY = 0f
-                                }
-                            }
-                        },
-                        onDragCancel = {
-                            scope.launch {
-                                dismissOffsetY.animateTo(0f)
-                                totalDragY = 0f
-                            }
-                        },
-                    )
-                },
+                .background(Color(0x35000000)) // Soft subtle scrim over real lockscreen
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss, // Tap anywhere outside the card dismisses
+                ),
+        contentAlignment = Alignment.Center,
     ) {
-        // ─────────────────────────────────────────────────────────────────
-        // Layer 1: Fullscreen Blurred Album Artwork Wallpaper
-        // ─────────────────────────────────────────────────────────────────
-        if (mediaMetadata.thumbnailUrl != null) {
-            AsyncImage(
-                model = mediaMetadata.thumbnailUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .blur(32.dp)
-                        .alpha(0.55f),
-            )
-        }
-
-        // Layer 2: Dark Vignette Gradient
+        // Floating Card Container (offsets smoothly when swiped)
         Box(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0x990A0B12),
-                                Color(0xBB08090F),
-                                Color(0xEE040407),
-                            ),
-                        ),
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp)
+                    .offset { IntOffset(0, dismissOffsetY.value.roundToInt()) }
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures(
+                            onVerticalDrag = { _, dragAmount ->
+                                totalDragY += dragAmount
+                                scope.launch {
+                                    dismissOffsetY.snapTo(totalDragY)
+                                }
+                            },
+                            onDragEnd = {
+                                if (abs(totalDragY) > 120f) {
+                                    scope.launch {
+                                        dismissOffsetY.animateTo(
+                                            targetValue = if (totalDragY < 0) -1000f else 1000f,
+                                            animationSpec = tween(200, easing = FastOutSlowInEasing),
+                                        )
+                                        onDismiss()
+                                    }
+                                } else {
+                                    scope.launch {
+                                        dismissOffsetY.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = tween(220, easing = FastOutSlowInEasing),
+                                        )
+                                        totalDragY = 0f
+                                    }
+                                }
+                            },
+                            onDragCancel = {
+                                scope.launch {
+                                    dismissOffsetY.animateTo(0f)
+                                    totalDragY = 0f
+                                }
+                            },
+                        )
+                    }
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}, // Prevents taps on the card itself from dismissing
                     ),
-        )
-
-        // Layer 3: Dynamic Liquid Ambient Backlight Aura
-        if (dominantColor != null) {
-            val aura = dominantColor!!
-            Box(
-                modifier =
-                    Modifier
-                        .size(340.dp)
-                        .align(Alignment.Center)
-                        .graphicsLayer {
-                            alpha = auraAlpha
-                        }
-                        .drawBehind {
-                            drawCircle(
-                                brush = Brush.radialGradient(
-                                    colors = listOf(
-                                        aura.copy(alpha = 0.65f),
-                                        aura.copy(alpha = 0.20f),
-                                        Color.Transparent,
-                                    ),
-                                ),
-                            )
-                        },
-            )
-        }
-
-        // ─────────────────────────────────────────────────────────────────
-        // Layer 4: Foreground Content
-        // ─────────────────────────────────────────────────────────────────
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // ─────────────────────────────────────────────────────────────
-            // Top: System Lockscreen Header (Padlock, Clock, Date)
-            // ─────────────────────────────────────────────────────────────
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = 16.dp),
-            ) {
-                // Padlock Icon
-                Icon(
-                    painter = painterResource(R.drawable.lock),
-                    contentDescription = "Locked",
-                    tint = Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(16.dp),
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                // Time Typography (SF Pro style bold thin)
-                Text(
-                    text = currentTime.format(timeFormatter),
-                    color = Color.White,
-                    fontSize = 72.sp,
-                    fontWeight = FontWeight.Light,
-                    letterSpacing = (-1.5).sp,
-                    modifier = Modifier.shadow(8.dp, CircleShape),
-                )
-
-                Spacer(Modifier.height(2.dp))
-
-                // Date
-                Text(
-                    text = currentDate.format(dateFormatter),
-                    color = Color.White.copy(alpha = 0.75f),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 0.2.sp,
+            // Dynamic Liquid Ambient Aura behind the floating card
+            if (dominantColor != null) {
+                val aura = dominantColor!!
+                Box(
+                    modifier =
+                        Modifier
+                            .size(320.dp)
+                            .align(Alignment.Center)
+                            .graphicsLayer {
+                                alpha = auraAlpha
+                            }
+                            .drawBehind {
+                                drawCircle(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(
+                                            aura.copy(alpha = 0.55f),
+                                            aura.copy(alpha = 0.15f),
+                                            Color.Transparent,
+                                        ),
+                                    ),
+                                )
+                            },
                 )
             }
 
-            // ─────────────────────────────────────────────────────────────
-            // Center: Apple Liquid Glass Player Card
-            // ─────────────────────────────────────────────────────────────
+            // The Apple Liquid Glass Player Card
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .shadow(24.dp, RoundedCornerShape(28.dp))
+                        .shadow(28.dp, RoundedCornerShape(28.dp))
                         .clip(RoundedCornerShape(28.dp))
-                        .background(Color(0x55FFFFFF)) // Layer 1: Outer specular rim
+                        .background(Color(0x60FFFFFF)) // Layer 1: Outer specular glass rim
                         .padding(1.2.dp),
             ) {
                 Box(
@@ -361,26 +266,26 @@ fun LockscreenPlayerContent(
                             Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(26.dp))
-                                .background(Color(0x6512131C)), // Layer 3: Smoked crystal obsidian base
+                                .background(Color(0x6E13141E)), // Layer 3: Smoked crystal obsidian base
                     ) {
-                        // Dynamic Liquid Artwork Overlay inside glass
+                        // Dynamic Liquid Artwork Dye Layer
                         if (dominantColor != null) {
                             Box(
                                 modifier =
                                     Modifier
                                         .matchParentSize()
-                                        .background(dominantColor!!.copy(alpha = 0.18f)),
+                                        .background(dominantColor!!.copy(alpha = 0.20f)),
                             )
                         }
 
-                        // Glass Inner Content
+                        // Glass Card Content
                         Column(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 14.dp),
                         ) {
-                            // Top Bevel Specular Light Ray
+                            // Top Bevel Specular Reflection Line
                             Box(
                                 modifier =
                                     Modifier
@@ -391,7 +296,7 @@ fun LockscreenPlayerContent(
                                             Brush.horizontalGradient(
                                                 listOf(
                                                     Color.Transparent,
-                                                    Color(0x90FFFFFF),
+                                                    Color(0x95FFFFFF),
                                                     Color.Transparent,
                                                 ),
                                             ),
@@ -400,7 +305,7 @@ fun LockscreenPlayerContent(
 
                             Spacer(Modifier.height(12.dp))
 
-                            // 1. Header: Squircle Artwork + Metadata + AirPlay Pill
+                            // 1. Artwork, Metadata, and AirPlay Capsule Pill
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -409,7 +314,7 @@ fun LockscreenPlayerContent(
                                 Box(
                                     modifier =
                                         Modifier
-                                            .size(60.dp)
+                                            .size(56.dp)
                                             .clip(RoundedCornerShape(15.dp))
                                             .background(Color(0x50FFFFFF))
                                             .padding(1.dp),
@@ -434,7 +339,7 @@ fun LockscreenPlayerContent(
                                     }
                                 }
 
-                                Spacer(Modifier.width(14.dp))
+                                Spacer(Modifier.width(13.dp))
 
                                 // Track Title & Artist
                                 Column(
@@ -444,7 +349,7 @@ fun LockscreenPlayerContent(
                                     Text(
                                         text = mediaMetadata.title.ifEmpty { stringResource(R.string.app_name) },
                                         color = Color.White,
-                                        fontSize = 16.sp,
+                                        fontSize = 15.5.sp,
                                         fontWeight = FontWeight.Bold,
                                         maxLines = 1,
                                         modifier = Modifier.basicMarquee(),
@@ -454,8 +359,8 @@ fun LockscreenPlayerContent(
 
                                     Text(
                                         text = mediaMetadata.artists.joinToString { it.name }.ifEmpty { "ArchiveTune" },
-                                        color = Color.White.copy(alpha = 0.70f),
-                                        fontSize = 13.sp,
+                                        color = Color.White.copy(alpha = 0.72f),
+                                        fontSize = 12.5.sp,
                                         fontWeight = FontWeight.Medium,
                                         maxLines = 1,
                                         modifier = Modifier.basicMarquee(),
@@ -469,7 +374,7 @@ fun LockscreenPlayerContent(
                                     modifier =
                                         Modifier
                                             .clip(RoundedCornerShape(14.dp))
-                                            .background(Color(0x50FFFFFF))
+                                            .background(Color(0x55FFFFFF))
                                             .padding(1.dp),
                                 ) {
                                     Row(
@@ -497,7 +402,7 @@ fun LockscreenPlayerContent(
                                 }
                             }
 
-                            Spacer(Modifier.height(14.dp))
+                            Spacer(Modifier.height(13.dp))
 
                             // 2. Interactive Precision Scrubber
                             Slider(
@@ -522,7 +427,7 @@ fun LockscreenPlayerContent(
                                         .height(18.dp),
                             )
 
-                            // Monospace Tabular Timestamps
+                            // Tabular Timestamps
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -530,13 +435,13 @@ fun LockscreenPlayerContent(
                                 Text(
                                     text = elapsedStr,
                                     color = Color.White.copy(alpha = 0.65f),
-                                    fontSize = 10.5.sp,
+                                    fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal,
                                 )
                                 Text(
                                     text = remainingStr,
                                     color = Color.White.copy(alpha = 0.65f),
-                                    fontSize = 10.5.sp,
+                                    fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal,
                                 )
                             }
@@ -635,7 +540,7 @@ fun LockscreenPlayerContent(
 
                             Spacer(Modifier.height(10.dp))
 
-                            // 4. Apple Lock Screen Volume Deck
+                            // 4. Apple Volume Deck
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -649,7 +554,6 @@ fun LockscreenPlayerContent(
 
                                 Spacer(Modifier.width(10.dp))
 
-                                // Sleek Volume Slider
                                 Box(
                                     modifier =
                                         Modifier
@@ -680,41 +584,6 @@ fun LockscreenPlayerContent(
                         }
                     }
                 }
-            }
-
-            // ─────────────────────────────────────────────────────────────
-            // Bottom: Swipe-Up Unlock Zone
-            // ─────────────────────────────────────────────────────────────
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier =
-                    Modifier
-                        .padding(bottom = 8.dp)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = onDismiss,
-                        ),
-            ) {
-                Text(
-                    text = stringResource(R.string.lockscreen_swipe_up_hint),
-                    color = Color.White.copy(alpha = 0.60f),
-                    fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 0.3.sp,
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                // Bottom Home/Unlock Bar Indicator
-                Box(
-                    modifier =
-                        Modifier
-                            .width(135.dp)
-                            .height(4.5.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.65f)),
-                )
             }
         }
     }
