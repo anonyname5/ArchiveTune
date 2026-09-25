@@ -89,7 +89,7 @@ private fun ZenTanzakuContent(context: Context) {
                     .fillMaxSize()
                     .background(washiPaperBg)
                     .cornerRadius(18.dp)
-                    .padding(10.dp)
+                    .padding(4.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             if (isVertical) {

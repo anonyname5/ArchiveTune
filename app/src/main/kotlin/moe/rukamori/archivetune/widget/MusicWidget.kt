@@ -118,7 +118,7 @@ private fun MusicWidgetBar(
                 .fillMaxSize()
                 .background(palette.surface)
                 .cornerRadius(28.dp)
-                .padding(6.dp)
+                .padding(4.dp)
                 .clickable(openArchiveTuneAction(context)),
     ) {
         Column(modifier = GlanceModifier.fillMaxSize()) {
@@ -185,7 +185,7 @@ private fun MusicWidgetPanel(
                 .fillMaxSize()
                 .background(palette.surface)
                 .cornerRadius(28.dp)
-                .padding(16.dp)
+                .padding(6.dp)
                 .clickable(openArchiveTuneAction(context)),
     ) {
         Column(modifier = GlanceModifier.fillMaxSize()) {

@@ -91,7 +91,7 @@ private fun VoyagerCosmicContent(context: Context) {
                     .fillMaxSize()
                     .background(spaceVoidBg)
                     .cornerRadius(22.dp)
-                    .padding(if (compact) 8.dp else 12.dp)
+                    .padding(if (compact) 4.dp else 6.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             Row(

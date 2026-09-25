@@ -90,7 +90,7 @@ private fun NowPlayingCardContent(context: Context) {
                     .fillMaxSize()
                     .background(palette.surface)
                     .cornerRadius(28.dp)
-                    .padding(12.dp)
+                    .padding(5.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             if (size.height < 108.dp) {

@@ -78,7 +78,7 @@ private fun PlaybackDeckContent(context: Context) {
                     .fillMaxSize()
                     .background(palette.surface)
                     .cornerRadius(30.dp)
-                    .padding(if (size.height < 150.dp) 8.dp else 14.dp)
+                    .padding(if (size.height < 150.dp) 4.dp else 6.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             if (size.width < 260.dp || size.height < 150.dp) {

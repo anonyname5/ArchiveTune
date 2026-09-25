@@ -91,7 +91,7 @@ private fun CdJewelCaseContent(context: Context) {
                     .fillMaxSize()
                     .background(acrylicBg)
                     .cornerRadius(20.dp)
-                    .padding(if (compact) 6.dp else 10.dp)
+                    .padding(if (compact) 3.dp else 5.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             Row(

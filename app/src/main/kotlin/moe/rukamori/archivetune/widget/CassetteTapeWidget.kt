@@ -90,7 +90,7 @@ private fun CassetteTapeContent(context: Context) {
                     .fillMaxSize()
                     .background(shellBg)
                     .cornerRadius(20.dp)
-                    .padding(if (compact) 6.dp else 10.dp)
+                    .padding(if (compact) 3.dp else 5.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             Column(

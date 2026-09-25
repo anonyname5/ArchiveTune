@@ -149,7 +149,7 @@ private fun AppleLockscreenContent(context: Context) {
                     modifier =
                         GlanceModifier
                             .fillMaxSize()
-                            .padding(if (compact) 9.dp else 13.dp),
+                            .padding(if (compact) 4.dp else 6.dp),
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
                     // Top Specular Gleam Line (Apple visionOS / liquid glass light reflection)

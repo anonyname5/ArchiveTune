@@ -73,7 +73,7 @@ private fun PlaybackSpotlightContent(context: Context) {
         val size = LocalSize.current
         val minSide = if (size.width < size.height) size.width else size.height
         val compact = minSide < 142.dp
-        val padding = if (compact) 5.dp else 8.dp
+        val padding = if (compact) 2.dp else 4.dp
 
         Box(
             modifier =

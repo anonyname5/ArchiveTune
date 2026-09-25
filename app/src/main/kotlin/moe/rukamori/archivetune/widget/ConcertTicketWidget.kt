@@ -91,7 +91,7 @@ private fun ConcertTicketContent(context: Context) {
                     .fillMaxSize()
                     .background(ticketPaper)
                     .cornerRadius(18.dp)
-                    .padding(if (compact) 6.dp else 10.dp)
+                    .padding(if (compact) 3.dp else 5.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             Row(

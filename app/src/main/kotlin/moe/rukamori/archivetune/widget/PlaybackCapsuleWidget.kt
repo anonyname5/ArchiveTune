@@ -79,7 +79,7 @@ private fun PlaybackCapsuleContent(context: Context) {
                     .fillMaxSize()
                     .background(palette.surface)
                     .cornerRadius(30.dp)
-                    .padding(if (compact) 6.dp else 8.dp)
+                    .padding(if (compact) 3.dp else 5.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             PlaybackCapsuleLayout(

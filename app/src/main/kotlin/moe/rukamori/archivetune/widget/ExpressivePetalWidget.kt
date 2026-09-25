@@ -89,7 +89,7 @@ private fun ExpressivePetalContent(context: Context) {
                     .fillMaxSize()
                     .background(petalBg)
                     .cornerRadius(34.dp)
-                    .padding(10.dp)
+                    .padding(4.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             if (isSquare) {

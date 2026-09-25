@@ -72,7 +72,7 @@ private fun AlbumArtWidgetContent(context: Context) {
         val palette = rememberWidgetPalette(state.dominantColor)
         val size = LocalSize.current
         val minSide = if (size.width < size.height) size.width else size.height
-        val outerPadding = if (minSide < 112.dp) 4.dp else 8.dp
+        val outerPadding = if (minSide < 112.dp) 2.dp else 4.dp
         val artworkCorner = if (minSide < 112.dp) 22.dp else 24.dp
 
         Box(

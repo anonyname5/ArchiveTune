@@ -81,7 +81,7 @@ private fun MusicHubContent(context: Context) {
                     .fillMaxSize()
                     .background(palette.surface)
                     .cornerRadius(24.dp)
-                    .padding(if (compact) 8.dp else 12.dp)
+                    .padding(if (compact) 4.dp else 6.dp)
                     .clickable(openArchiveTuneAction(context)),
         ) {
             Column(
