@@ -48,6 +48,8 @@ private val LOGCAT_FILTER_SPECS =
         "LeakCanaryController:W",
         "MusicDatabase:V",
         "MusicWidgetActions:E",
+        "WidgetDebug:D",
+        "WidgetCleanup:D",
         "RLog:I",
         "System.err:V",
         "System.out:V",

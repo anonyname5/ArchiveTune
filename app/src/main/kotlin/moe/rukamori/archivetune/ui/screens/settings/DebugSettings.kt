@@ -9,6 +9,11 @@
 
 package moe.rukamori.archivetune.ui.screens.settings
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
+import moe.rukamori.archivetune.widget.WidgetDebugLogger
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -218,6 +223,51 @@ fun DebugSettings(navController: NavController) {
                             )
                         },
                         onClick = { navController.navigate("settings/logcat") },
+                    )
+                }
+            }
+
+            PreferenceGroup(title = "Widget Diagnostics & Logs") {
+                item {
+                    PreferenceEntry(
+                        title = { Text("Dump Widget Diagnostics to Log") },
+                        description = "Audit OS-registered providers, ghost widget states, and placed instances",
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.info),
+                                contentDescription = null,
+                            )
+                        },
+                        trailingContent = {
+                            Icon(
+                                painter = painterResource(R.drawable.navigate_next),
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            WidgetDebugLogger.dumpToLog(context)
+                            Toast.makeText(context, "Widget diagnostics dumped to log!", Toast.LENGTH_SHORT).show()
+                            navController.navigate("settings/logcat")
+                        },
+                    )
+                }
+
+                item {
+                    PreferenceEntry(
+                        title = { Text("Copy Diagnostics Report") },
+                        description = "Copy full widget and provider audit to clipboard",
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.tune),
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = {
+                            val report = WidgetDebugLogger.dumpToLog(context)
+                            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                            cm?.setPrimaryClip(ClipData.newPlainText("Widget Diagnostics", report))
+                            Toast.makeText(context, "Copied diagnostics to clipboard!", Toast.LENGTH_SHORT).show()
+                        },
                     )
                 }
             }

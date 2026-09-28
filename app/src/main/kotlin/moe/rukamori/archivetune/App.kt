@@ -62,7 +62,7 @@ import moe.rukamori.archivetune.utils.dataStore
 import moe.rukamori.archivetune.utils.get
 import moe.rukamori.archivetune.utils.potoken.BotGuardTokenGenerator
 import moe.rukamori.archivetune.utils.reportException
-import moe.rukamori.archivetune.widget.WidgetCleanupHelper
+import moe.rukamori.archivetune.widget.WidgetDebugLogger
 import moe.rukamori.archivetune.utils.toPlaybackAuthState
 import okhttp3.Dns
 import timber.log.Timber
@@ -114,14 +114,6 @@ class App :
     override fun onCreate() {
         super.onCreate()
         instance = this
-        if (currentProcessName()?.endsWith(":crash") == true) {
-            Timber.plant(Timber.DebugTree())
-            return
-        }
-        BotGuardTokenGenerator.initialize(this)
-        WidgetCleanupHelper.disableRemovedWidgets(this)
-        PreferenceStore.start(this)
-        LeakCanaryController.initialize(this)
         Timber.plant(Timber.DebugTree())
         try {
             Timber.plant(
@@ -130,6 +122,14 @@ class App :
             )
         } catch (_: Exception) {
         }
+
+        if (currentProcessName()?.endsWith(":crash") == true) {
+            return
+        }
+        BotGuardTokenGenerator.initialize(this)
+        WidgetDebugLogger.dumpToLog(this)
+        PreferenceStore.start(this)
+        LeakCanaryController.initialize(this)
 
         initializeGatekeeper()
         initializeCriticalSync()
