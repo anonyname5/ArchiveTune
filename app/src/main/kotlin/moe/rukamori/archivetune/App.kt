@@ -62,6 +62,7 @@ import moe.rukamori.archivetune.utils.dataStore
 import moe.rukamori.archivetune.utils.get
 import moe.rukamori.archivetune.utils.potoken.BotGuardTokenGenerator
 import moe.rukamori.archivetune.utils.reportException
+import moe.rukamori.archivetune.widget.WidgetCleanupHelper
 import moe.rukamori.archivetune.utils.toPlaybackAuthState
 import okhttp3.Dns
 import timber.log.Timber
@@ -118,6 +119,7 @@ class App :
             return
         }
         BotGuardTokenGenerator.initialize(this)
+        WidgetCleanupHelper.disableRemovedWidgets(this)
         PreferenceStore.start(this)
         LeakCanaryController.initialize(this)
         Timber.plant(Timber.DebugTree())

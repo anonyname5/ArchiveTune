@@ -424,6 +424,207 @@
                 android:resource="@xml/widget_apple_liquid_orb_info" />
         </receiver>
 
+        <receiver
+            android:name=".widget.AppleLiquidPanoWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_pano_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AppleLiquidMonoWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_mono_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AppleLiquidDuoWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_duo_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AppleLiquidShelfWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_shelf_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AppleLiquidNowWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_now_info" />
+        </receiver>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             Disabled stubs for REMOVED widgets.
+             These exist solely to force the system (especially Xiaomi HyperOS)
+             to deregister ghost entries from the widget picker cache.
+             android:enabled="false" prevents them from appearing in the picker.
+             ═══════════════════════════════════════════════════════════════ -->
+        <receiver android:name=".widget.AlbumArtWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.AnalogVuMeterWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.BraunMinimalistWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.CassetteTapeWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.CdJewelCaseWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.ChromaticAuraWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.ConcertTicketWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.ExpressivePetalWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.GameBoyConsoleWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.ListeningInsightsWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.LofiPixelRoomWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.ModularSynthWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.MusicHubWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.MusicWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.NeonJukeboxWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.NowPlayingCardWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.PlaybackCapsuleWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.PlaybackCommandWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.PlaybackDeckWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.PolaroidPhotoWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.QueueFlowWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.ReelToReelWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.RetroClickWheelWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.SoundwaveEqualizerWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.SwissBrutalistWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.SynthwaveDashboardWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.VinylTurntableWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
+        <receiver android:name=".widget.VoyagerCosmicWidgetReceiver"
+            android:enabled="false" android:exported="false">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_disabled_stub_info" />
+        </receiver>
 
 
         <meta-data

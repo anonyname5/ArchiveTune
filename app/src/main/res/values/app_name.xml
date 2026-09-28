@@ -13,4 +13,10 @@
     <string name="widget_apple_liquid_poster_description">Apple Liquid Glass 3×3 full-bleed artwork canvas poster with floating visionOS dock</string>
     <string name="widget_apple_liquid_island_description">Apple Liquid Glass 4×2 Dynamic Island expanded deck with audio waveform visualizer and 5-button dock</string>
     <string name="widget_apple_liquid_orb_description">Apple Liquid Glass 2×2 visionOS circular orb pebble with illuminated play lens and scrubber</string>
+    <string name="widget_apple_liquid_pano_description">Apple Liquid Glass 5×2 cinematic panoramic horizon banner with letterbox artwork strip and floating control capsule</string>
+    <string name="widget_apple_liquid_mono_description">Apple Liquid Glass 1×1 micro play button orb with luminous glass lens</string>
+    <string name="widget_apple_liquid_duo_description">Apple Liquid Glass 4×2 dual pane control center with track info panel and circular button grid</string>
+    <string name="widget_apple_liquid_shelf_description">Apple Liquid Glass 4×4 full-page album showcase with massive artwork canvas and crystalline control shelf</string>
+    <string name="widget_apple_liquid_now_description">Apple Liquid Glass 3×2 now playing tag card with artwork box and compact media controls</string>
+    <string name="widget_removed_description">This widget has been removed</string>
 </resources>

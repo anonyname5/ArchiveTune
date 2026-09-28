@@ -43,12 +43,17 @@ import moe.rukamori.archivetune.R
 import moe.rukamori.archivetune.extensions.SilentHandler
 import moe.rukamori.archivetune.utils.reportException
 import moe.rukamori.archivetune.widget.AppleLiquidCompactWidget
+import moe.rukamori.archivetune.widget.AppleLiquidDuoWidget
 import moe.rukamori.archivetune.widget.AppleLiquidHeroWidget
 import moe.rukamori.archivetune.widget.AppleLiquidIslandWidget
 import moe.rukamori.archivetune.widget.AppleLiquidMiniWidget
+import moe.rukamori.archivetune.widget.AppleLiquidMonoWidget
+import moe.rukamori.archivetune.widget.AppleLiquidNowWidget
 import moe.rukamori.archivetune.widget.AppleLiquidOrbWidget
+import moe.rukamori.archivetune.widget.AppleLiquidPanoWidget
 import moe.rukamori.archivetune.widget.AppleLiquidPillWidget
 import moe.rukamori.archivetune.widget.AppleLiquidPosterWidget
+import moe.rukamori.archivetune.widget.AppleLiquidShelfWidget
 import moe.rukamori.archivetune.widget.AppleLiquidSplitWidget
 import moe.rukamori.archivetune.widget.AppleLockscreenWidget
 import moe.rukamori.archivetune.widget.LoadWidgetInsightsUseCase
@@ -434,6 +439,11 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidPosterWidget::class.java, AppleLiquidPosterWidget()),
                 WidgetTarget(AppleLiquidIslandWidget::class.java, AppleLiquidIslandWidget()),
                 WidgetTarget(AppleLiquidOrbWidget::class.java, AppleLiquidOrbWidget()),
+                WidgetTarget(AppleLiquidPanoWidget::class.java, AppleLiquidPanoWidget()),
+                WidgetTarget(AppleLiquidMonoWidget::class.java, AppleLiquidMonoWidget()),
+                WidgetTarget(AppleLiquidDuoWidget::class.java, AppleLiquidDuoWidget()),
+                WidgetTarget(AppleLiquidShelfWidget::class.java, AppleLiquidShelfWidget()),
+                WidgetTarget(AppleLiquidNowWidget::class.java, AppleLiquidNowWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )
@@ -449,6 +459,11 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidPosterWidget::class.java, AppleLiquidPosterWidget()),
                 WidgetTarget(AppleLiquidIslandWidget::class.java, AppleLiquidIslandWidget()),
                 WidgetTarget(AppleLiquidOrbWidget::class.java, AppleLiquidOrbWidget()),
+                WidgetTarget(AppleLiquidPanoWidget::class.java, AppleLiquidPanoWidget()),
+                WidgetTarget(AppleLiquidMonoWidget::class.java, AppleLiquidMonoWidget()),
+                WidgetTarget(AppleLiquidDuoWidget::class.java, AppleLiquidDuoWidget()),
+                WidgetTarget(AppleLiquidShelfWidget::class.java, AppleLiquidShelfWidget()),
+                WidgetTarget(AppleLiquidNowWidget::class.java, AppleLiquidNowWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )
