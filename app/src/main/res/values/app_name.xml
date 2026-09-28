@@ -2,34 +2,11 @@
 <resources>
     <string name="app_name" translatable="false">ArchiveTune</string>
     <string name="widget_description">Shows currently playing track with playback controls</string>
-    <string name="widget_album_art_description">Album art widget with floating playback controls</string>
-    <string name="widget_now_playing_card_description">Now playing card with artwork, progress, and playback controls</string>
-    <string name="widget_playback_deck_description">Large now playing deck with artwork, progress, and playback controls</string>
-    <string name="widget_playback_capsule_description">Expressive playback capsule with artwork, progress, and play controls</string>
     <string name="widget_playback_spotlight_description">Artwork spotlight widget with expressive playback controls</string>
-    <string name="widget_playback_command_description">Control-first playback widget with artwork, progress, and skip controls</string>
-    <string name="widget_listening_insights_description">Listening insights widget with recent songs, genres, and recommendations</string>
-    <string name="widget_vinyl_turntable_description">Retro vinyl turntable with grooved disc, tonearm, and tactile playback controls</string>
-    <string name="widget_cassette_tape_description">Vintage 90s audio cassette mixtape with dual spools and Walkman controls</string>
-    <string name="widget_retro_click_wheel_description">Classic 2000s media player with monochrome LCD and iconic circular click wheel</string>
-    <string name="widget_cd_jewel_case_description">Y2K transparent CD jewel case with album booklet and compact disc</string>
-    <string name="widget_analog_vu_meter_description">Studio Hi-Fi receiver with dual glowing analog VU meters and brushed metal panel</string>
-    <string name="widget_polaroid_photo_description">Vintage Polaroid instant photo with handwritten title and clean controls</string>
-    <string name="widget_lofi_pixel_room_description">Cozy 8-bit lo-fi scene with animated headphone mascot and retro pixel styling</string>
-    <string name="widget_synthwave_dashboard_description">Cyberpunk 80s supercar digital dashboard with RPM progress and neon controls</string>
     <string name="widget_zen_tanzaku_description">Minimalist Japanese washi paper slip with Ensō brush circle and Hanko seal</string>
-    <string name="widget_voyager_cosmic_description">NASA Voyager Golden Record with orbital spacecraft progress and deep space starfield</string>
-    <string name="widget_concert_ticket_description">Vintage perforated concert ticket stub with barcode, seat info, and tear-off controls</string>
-    <string name="widget_gameboy_console_description">1989 handheld gaming console with olive dot-matrix LCD screen, D-pad, and action buttons</string>
-    <string name="widget_neon_jukebox_description">1950s chrome diner jukebox with bubbling neon arch, flip title strips, and coin drop play button</string>
-    <string name="widget_reel_to_reel_description">Vintage studio reel-to-reel master tape machine with dual spinning aluminum reels and counter</string>
-    <string name="widget_modular_synth_description">Eurorack modular synthesizer rack with oscilloscope waveform display, patch cables, and dials</string>
-    <string name="widget_braun_minimalist_description">Dieter Rams Bauhaus minimalist audio with acoustic speaker grille and signature orange power dial</string>
-    <string name="widget_swiss_brutalist_description">Bold Swiss international typographic poster with high-contrast geometry and track metadata</string>
-    <string name="widget_chromatic_aura_description">Ambient fluid liquid mood orb with frosted glassmorphism and artwork-derived glow</string>
-    <string name="widget_soundwave_equalizer_description">High-tech audio spectrum visualizer with dynamic equalizer frequency bars and scrub bar</string>
-    <string name="widget_expressive_petal_description">Material 3 expressive scalloped flower shape with organic geometry and orbiting pill controls</string>
-    <string name="widget_music_hub_description">All-in-one command center with now playing deck and 1-tap quick launch library shortcuts</string>
-    <string name="widget_queue_flow_description">DJ deck showing currently playing track alongside upcoming queued songs</string>
     <string name="widget_apple_lockscreen_description">Apple-style liquid glass lock screen music player with specular acrylic highlights, AirPlay capsule, and fluid controls</string>
+    <string name="widget_apple_liquid_compact_description">Apple Liquid Glass 2×2 compact player card with specular reflection and scrubber</string>
+    <string name="widget_apple_liquid_pill_description">Apple Liquid Glass 4×1 slim Dynamic Island pill with liquid aura and live playback time</string>
+    <string name="widget_apple_liquid_hero_description">Apple Liquid Glass 4×3 hero showcase deck with Lossless badge, scrubber, and volume controls</string>
+    <string name="widget_apple_liquid_mini_description">Apple Liquid Glass 2×1 pocket tile with crystalline rim and tactile play lens</string>
 </resources>

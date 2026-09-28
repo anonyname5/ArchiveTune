@@ -25,6 +25,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
@@ -193,6 +194,44 @@ internal fun WidgetArtwork(
                     contentScale = ContentScale.Fit,
                     colorFilter = ColorFilter.tint(palette.onSurfaceVariant),
                     modifier = GlanceModifier.size(fallbackIconSize),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+internal fun WidgetAlbumArt(
+    artPath: String?,
+    modifier: GlanceModifier = GlanceModifier,
+    contentDescription: String? = null,
+    targetSize: Dp = 120.dp,
+) {
+    val context = LocalContext.current
+    val bitmap =
+        remember(artPath, targetSize) {
+            artPath?.let { WidgetArtworkCache.decode(it, context, targetSize) }
+        }
+
+    Box(modifier = modifier) {
+        if (bitmap != null) {
+            Image(
+                provider = ImageProvider(bitmap),
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Crop,
+                modifier = GlanceModifier.fillMaxSize(),
+            )
+        } else {
+            Box(
+                modifier = GlanceModifier.fillMaxSize().background(Color(0x35FFFFFF)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    provider = ImageProvider(R.drawable.music_note),
+                    contentDescription = contentDescription,
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(ColorProvider(Color(0xD0FFFFFF))),
+                    modifier = GlanceModifier.size(targetSize * 0.45f),
                 )
             }
         }
