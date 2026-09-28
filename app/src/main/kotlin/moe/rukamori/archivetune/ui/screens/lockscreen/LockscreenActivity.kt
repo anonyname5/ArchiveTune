@@ -33,8 +33,10 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import moe.rukamori.archivetune.R
 import moe.rukamori.archivetune.db.MusicDatabase
 import moe.rukamori.archivetune.extensions.togglePlayPause
@@ -73,6 +75,25 @@ class LockscreenActivity : ComponentActivity() {
             }
         }
 
+    private var autoOffJob: Job? = null
+
+    private val screenOffReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?,
+            ) {
+                if (intent?.action == Intent.ACTION_SCREEN_OFF) {
+                    autoOffJob?.cancel()
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                        setTurnScreenOn(false)
+                    }
+                }
+            }
+        }
+
     private val unlockReceiver =
         object : BroadcastReceiver() {
             override fun onReceive(
@@ -98,7 +119,8 @@ class LockscreenActivity : ComponentActivity() {
         @Suppress("DEPRECATION")
         window.addFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
         )
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -113,6 +135,15 @@ class LockscreenActivity : ComponentActivity() {
         } else {
             registerReceiver(unlockReceiver, unlockFilter)
         }
+
+        val screenOffFilter = IntentFilter(Intent.ACTION_SCREEN_OFF)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(screenOffReceiver, screenOffFilter, Context.RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(screenOffReceiver, screenOffFilter)
+        }
+
+        startAutoOffTimer()
 
         bindService(
             Intent(this, MusicService::class.java),
@@ -196,21 +227,64 @@ class LockscreenActivity : ComponentActivity() {
         }
     }
 
+    private fun startAutoOffTimer() {
+        autoOffJob?.cancel()
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setTurnScreenOn(true)
+        }
+        window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+        applyUserActivityTimeout(15000L)
+
+        autoOffJob =
+            lifecycleScope.launch {
+                delay(15_000L)
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                window.clearFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                    setTurnScreenOn(false)
+                }
+                applyUserActivityTimeout(0L)
+            }
+    }
+
+    private fun applyUserActivityTimeout(timeoutMs: Long) {
+        try {
+            val layoutParams = window.attributes
+            val field = WindowManager.LayoutParams::class.java.getField("userActivityTimeout")
+            field.setLong(layoutParams, timeoutMs)
+            window.attributes = layoutParams
+        } catch (_: Throwable) {
+        }
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        startAutoOffTimer()
+    }
+
     override fun onResume() {
         super.onResume()
         getSystemService(NotificationManager::class.java)?.cancel(LOCKSCREEN_NOTIFICATION_ID)
+        startAutoOffTimer()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         getSystemService(NotificationManager::class.java)?.cancel(LOCKSCREEN_NOTIFICATION_ID)
+        startAutoOffTimer()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        autoOffJob?.cancel()
         getSystemService(NotificationManager::class.java)?.cancel(LOCKSCREEN_NOTIFICATION_ID)
         try {
             unregisterReceiver(unlockReceiver)
+        } catch (_: IllegalArgumentException) {
+        }
+        try {
+            unregisterReceiver(screenOffReceiver)
         } catch (_: IllegalArgumentException) {
         }
         try {
