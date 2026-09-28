@@ -25,6 +25,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <queries>
         <intent>
@@ -283,6 +284,7 @@
             android:name=".ui.screens.lockscreen.LockscreenActivity"
             android:exported="true"
             android:excludeFromRecents="true"
+            android:taskAffinity="moe.rukamori.archivetune.lockscreen"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:launchMode="singleInstance"

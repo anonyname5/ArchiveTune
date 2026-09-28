@@ -12,6 +12,7 @@ package moe.rukamori.archivetune.playback
 import android.app.ActivityManager
 import android.app.ActivityOptions
 import android.app.Notification
+import android.app.KeyguardManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -128,6 +129,8 @@ import moe.rukamori.archivetune.constants.AodAutoStartScreenOffKey
 import moe.rukamori.archivetune.constants.AodModeEnabledKey
 import moe.rukamori.archivetune.constants.LockscreenPlayerEnabledKey
 import moe.rukamori.archivetune.ui.screens.lockscreen.ACTION_LOCKSCREEN_PLAYER
+import moe.rukamori.archivetune.ui.screens.lockscreen.LOCKSCREEN_NOTIFICATION_CHANNEL_ID
+import moe.rukamori.archivetune.ui.screens.lockscreen.LOCKSCREEN_NOTIFICATION_ID
 import moe.rukamori.archivetune.ui.screens.lockscreen.LockscreenActivity
 import moe.rukamori.archivetune.cast.CastMediaItemResolver
 import moe.rukamori.archivetune.cast.CastPlaybackRepository
@@ -1120,6 +1123,18 @@ class MusicService :
                         NotificationManager.IMPORTANCE_DEFAULT,
                     ),
                 )
+                val lockscreenChannel =
+                    NotificationChannel(
+                        LOCKSCREEN_NOTIFICATION_CHANNEL_ID,
+                        getString(R.string.lockscreen_player_title),
+                        NotificationManager.IMPORTANCE_HIGH,
+                    ).apply {
+                        description = "ArchiveTune Lockscreen Player"
+                        lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                        setSound(null, null)
+                        enableVibration(false)
+                    }
+                nm?.createNotificationChannel(lockscreenChannel)
             }
         } catch (e: Exception) {
             reportException(e)
@@ -1235,91 +1250,34 @@ class MusicService :
                                 val preferences = dataStore.data.first()
                                 val aodEnabled = preferences[AodModeEnabledKey] ?: false
                                 val autoStartAod = preferences[AodAutoStartScreenOffKey] ?: true
-                                if (!aodEnabled || !autoStartAod || !player.isPlaying) return@launch
+                                if (aodEnabled && autoStartAod && player.isPlaying) {
+                                    val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+                                    val aodLaunchWl =
+                                        pm?.newWakeLock(
+                                            PowerManager.PARTIAL_WAKE_LOCK,
+                                            "ArchiveTune:AodAutoStart",
+                                        )
+                                    aodLaunchWl?.acquire(3000L)
 
-                                val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
-                                val aodLaunchWl =
-                                    pm?.newWakeLock(
-                                        PowerManager.PARTIAL_WAKE_LOCK,
-                                        "ArchiveTune:AodAutoStart",
-                                    )
-                                aodLaunchWl?.acquire(3000L)
-
-                                val aodIntent =
-                                    Intent(this@MusicService, MainActivity::class.java).apply {
-                                        action = ACTION_AOD_MODE
-                                        flags =
-                                            Intent.FLAG_ACTIVITY_NEW_TASK or
-                                                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
-                                                Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    val aodIntent =
+                                        Intent(this@MusicService, MainActivity::class.java).apply {
+                                            action = ACTION_AOD_MODE
+                                            flags =
+                                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                                                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                        }
+                                    try {
+                                        startActivity(aodIntent)
+                                    } finally {
+                                        if (aodLaunchWl?.isHeld == true) aodLaunchWl.release()
                                     }
-                                try {
-                                    startActivity(aodIntent)
-                                } finally {
-                                    if (aodLaunchWl?.isHeld == true) aodLaunchWl.release()
                                 }
                             }
                         }
 
                         Intent.ACTION_SCREEN_ON -> {
-                            scope.launch {
-                                val preferences = dataStore.data.first()
-                                val lockscreenEnabled = preferences[LockscreenPlayerEnabledKey] ?: false
-                                if (!lockscreenEnabled || !player.isPlaying) return@launch
-
-                                val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
-                                val lockWl =
-                                    pm?.newWakeLock(
-                                        PowerManager.PARTIAL_WAKE_LOCK,
-                                        "ArchiveTune:LockscreenAutoStart",
-                                    )
-                                lockWl?.acquire(3000L)
-
-                                val lockIntent =
-                                    Intent(this@MusicService, LockscreenActivity::class.java).apply {
-                                        action = ACTION_LOCKSCREEN_PLAYER
-                                        flags =
-                                            Intent.FLAG_ACTIVITY_NEW_TASK or
-                                                Intent.FLAG_ACTIVITY_SINGLE_TOP or
-                                                Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                    }
-
-                                val pendingIntent =
-                                    PendingIntent.getActivity(
-                                        this@MusicService,
-                                        2001,
-                                        lockIntent,
-                                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                                    )
-
-                                val options =
-                                    ActivityOptions.makeBasic().apply {
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                            setPendingIntentBackgroundActivityStartMode(
-                                                ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED,
-                                            )
-                                        }
-                                    }
-
-                                try {
-                                    pendingIntent.send(
-                                        this@MusicService,
-                                        0,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        options.toBundle(),
-                                    )
-                                } catch (e: Exception) {
-                                    try {
-                                        startActivity(lockIntent)
-                                    } catch (_: Exception) {
-                                    }
-                                } finally {
-                                    if (lockWl?.isHeld == true) lockWl.release()
-                                }
-                            }
+                            presentLockscreenPlayerIfEligible()
                         }
                     }
                 }
@@ -2413,6 +2371,103 @@ class MusicService :
                 )
             } catch (ex: Exception) {
                 Timber.tag("MusicService").e(ex, "Failed to start presence manager")
+            }
+        }
+    }
+
+    private fun presentLockscreenPlayerIfEligible() {
+        scope.launch(Dispatchers.Main) {
+            val preferences = dataStore.data.first()
+            val lockscreenEnabled = preferences[LockscreenPlayerEnabledKey] ?: false
+            if (!lockscreenEnabled) return@launch
+
+            val km = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+            val isLocked = km?.isKeyguardLocked == true
+            if (!isLocked) return@launch
+
+            val hasMedia = player.currentMediaItem != null
+            if (!hasMedia) return@launch
+
+            val pm = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            val lockWl =
+                pm?.newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK,
+                    "ArchiveTune:LockscreenAutoStart",
+                )
+            lockWl?.acquire(3000L)
+
+            val lockIntent =
+                Intent(this@MusicService, LockscreenActivity::class.java).apply {
+                    action = ACTION_LOCKSCREEN_PLAYER
+                    flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+
+            val creatorOptions =
+                ActivityOptions.makeBasic().apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        setPendingIntentCreatorBackgroundActivityStartMode(
+                            ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED,
+                        )
+                    }
+                }
+
+            val pendingIntent =
+                PendingIntent.getActivity(
+                    this@MusicService,
+                    2001,
+                    lockIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                    creatorOptions.toBundle(),
+                )
+
+            val nm = getSystemService(NotificationManager::class.java)
+            val currentTitle =
+                player.mediaMetadata.title?.toString()?.ifEmpty { getString(R.string.app_name) }
+                    ?: getString(R.string.app_name)
+            val currentArtist = player.mediaMetadata.artist?.toString() ?: ""
+            val notification =
+                NotificationCompat.Builder(this@MusicService, LOCKSCREEN_NOTIFICATION_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.small_icon)
+                    .setContentTitle(currentTitle)
+                    .setContentText(currentArtist)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setFullScreenIntent(pendingIntent, true)
+                    .setAutoCancel(true)
+                    .build()
+
+            val sendOptions =
+                ActivityOptions.makeBasic().apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        setPendingIntentBackgroundActivityStartMode(
+                            ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED,
+                        )
+                    }
+                }
+
+            try {
+                nm?.notify(LOCKSCREEN_NOTIFICATION_ID, notification)
+                pendingIntent.send(
+                    this@MusicService,
+                    0,
+                    null,
+                    null,
+                    null,
+                    null,
+                    sendOptions.toBundle(),
+                )
+                try {
+                    startActivity(lockIntent, creatorOptions.toBundle())
+                } catch (_: Exception) {
+                }
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "Failed to present lockscreen player")
+            } finally {
+                if (lockWl?.isHeld == true) lockWl.release()
             }
         }
     }
@@ -6772,6 +6827,9 @@ class MusicService :
         currentMediaMetadata.value = if (timelineEmpty) null else (mediaItem?.metadata ?: player.currentMetadata)
 
         widgetUpdater.update()
+        if (player.isPlaying) {
+            presentLockscreenPlayerIfEligible()
+        }
 
         scrobbleManager?.onSongStop()
 
@@ -6943,6 +7001,9 @@ class MusicService :
         }
         if (isPlaying && !isCrossfading) {
             scheduleCrossfade()
+        }
+        if (isPlaying) {
+            presentLockscreenPlayerIfEligible()
         }
         updateAudiblePlaybackRecovery()
 
@@ -7267,6 +7328,8 @@ class MusicService :
             if (!crossfadeHandoffInProgress) {
                 cancelCrossfade(resetVolume = true, resetPauseAtEnd = true)
             }
+            widgetUpdater.update()
+            widgetUpdater.updateProgressTracking()
         }
         if (!isCrossfading && !crossfadeHandoffInProgress) {
             scheduleCrossfade()
@@ -8373,6 +8436,7 @@ class MusicService :
             reason = "service_destroy",
             force = true,
         )
+        widgetUpdater.destroy()
         super.onDestroy()
         playbackErrorRecoveryJob?.cancel()
         effectiveVolumeRampJob?.cancel()

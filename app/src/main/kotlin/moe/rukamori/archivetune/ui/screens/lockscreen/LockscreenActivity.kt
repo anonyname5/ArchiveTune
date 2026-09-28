@@ -8,12 +8,14 @@
 package moe.rukamori.archivetune.ui.screens.lockscreen
 
 import android.app.KeyguardManager
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -71,13 +73,13 @@ class LockscreenActivity : ComponentActivity() {
             }
         }
 
-    private val screenOffReceiver =
+    private val unlockReceiver =
         object : BroadcastReceiver() {
             override fun onReceive(
                 context: Context?,
                 intent: Intent?,
             ) {
-                if (intent?.action == Intent.ACTION_SCREEN_OFF) {
+                if (intent?.action == Intent.ACTION_USER_PRESENT) {
                     finish()
                 }
             }
@@ -85,6 +87,8 @@ class LockscreenActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        volumeControlStream = AudioManager.STREAM_MUSIC
 
         // Configure native lockscreen display flags
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -94,7 +98,6 @@ class LockscreenActivity : ComponentActivity() {
         @Suppress("DEPRECATION")
         window.addFlags(
             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
         )
 
@@ -104,11 +107,11 @@ class LockscreenActivity : ComponentActivity() {
             dismissLockscreen()
         }
 
-        val screenFilter = IntentFilter(Intent.ACTION_SCREEN_OFF)
+        val unlockFilter = IntentFilter(Intent.ACTION_USER_PRESENT)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(screenOffReceiver, screenFilter, Context.RECEIVER_EXPORTED)
+            registerReceiver(unlockReceiver, unlockFilter, Context.RECEIVER_EXPORTED)
         } else {
-            registerReceiver(screenOffReceiver, screenFilter)
+            registerReceiver(unlockReceiver, unlockFilter)
         }
 
         bindService(
@@ -193,10 +196,21 @@ class LockscreenActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        getSystemService(NotificationManager::class.java)?.cancel(LOCKSCREEN_NOTIFICATION_ID)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        getSystemService(NotificationManager::class.java)?.cancel(LOCKSCREEN_NOTIFICATION_ID)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        getSystemService(NotificationManager::class.java)?.cancel(LOCKSCREEN_NOTIFICATION_ID)
         try {
-            unregisterReceiver(screenOffReceiver)
+            unregisterReceiver(unlockReceiver)
         } catch (_: IllegalArgumentException) {
         }
         try {
@@ -205,3 +219,4 @@ class LockscreenActivity : ComponentActivity() {
         }
     }
 }
+

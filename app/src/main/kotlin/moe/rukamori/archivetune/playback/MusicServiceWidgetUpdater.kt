@@ -7,8 +7,15 @@
 
 package moe.rukamori.archivetune.playback
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.net.Uri
+import android.os.Build
+import android.os.PowerManager
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.mutablePreferencesOf
@@ -69,6 +76,7 @@ import moe.rukamori.archivetune.widget.VinylTurntableWidget
 import moe.rukamori.archivetune.widget.VoyagerCosmicWidget
 import moe.rukamori.archivetune.widget.WidgetInsightsSnapshot
 import moe.rukamori.archivetune.widget.ZenTanzakuWidget
+import moe.rukamori.archivetune.widget.toMutableWidgetPreferences
 import moe.rukamori.archivetune.widget.toWidgetPreferenceValue
 import java.io.File
 
@@ -79,8 +87,63 @@ internal class MusicServiceWidgetUpdater(
     private val loadWidgetInsights: LoadWidgetInsightsUseCase,
 ) {
     private val widgetManager = GlanceAppWidgetManager(service)
+    private val audioManager = service.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    private val powerManager = service.getSystemService(Context.POWER_SERVICE) as? PowerManager
     private var stateJob: Job? = null
     private var progressJob: Job? = null
+    private var isReceiverRegistered = false
+
+    private val broadcastReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?,
+            ) {
+                when (intent?.action) {
+                    "android.media.VOLUME_CHANGED_ACTION" -> {
+                        scope.launch(SilentHandler) {
+                            updateVolumeState()
+                        }
+                    }
+                    Intent.ACTION_SCREEN_ON -> {
+                        if (player.isPlaying) {
+                            update()
+                            updateProgressTracking()
+                        }
+                    }
+                }
+            }
+        }
+
+    init {
+        try {
+            val filter =
+                IntentFilter().apply {
+                    addAction("android.media.VOLUME_CHANGED_ACTION")
+                    addAction(Intent.ACTION_SCREEN_ON)
+                }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                service.registerReceiver(broadcastReceiver, filter, Context.RECEIVER_EXPORTED)
+            } else {
+                service.registerReceiver(broadcastReceiver, filter)
+            }
+            isReceiverRegistered = true
+        } catch (_: Exception) {
+            isReceiverRegistered = false
+        }
+    }
+
+    fun destroy() {
+        stateJob?.cancel()
+        progressJob?.cancel()
+        if (isReceiverRegistered) {
+            try {
+                service.unregisterReceiver(broadcastReceiver)
+            } catch (_: Exception) {
+            }
+            isReceiverRegistered = false
+        }
+    }
 
     fun update() {
         stateJob?.cancel()
@@ -100,11 +163,41 @@ internal class MusicServiceWidgetUpdater(
 
                     while (isActive && player.isPlaying) {
                         delay(WIDGET_PROGRESS_UPDATE_INTERVAL_MILLIS)
-                        if (player.isPlaying) {
-                            updateProgress(installedTargets, player.playbackProgress())
+                        val isInteractive = powerManager?.isInteractive ?: true
+                        if (isInteractive && player.isPlaying) {
+                            updateProgress(
+                                installedTargets = installedTargets,
+                                progress = player.playbackProgress(),
+                                positionMs = player.currentPosition.coerceAtLeast(0L),
+                                durationMs = player.duration.coerceAtLeast(0L),
+                            )
                         }
                     }
                 }
+        }
+    }
+
+    private fun getVolumeProgress(): Float {
+        val am = audioManager ?: return 0.5f
+        val cur = am.getStreamVolume(AudioManager.STREAM_MUSIC)
+        val max = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+        return (cur.toFloat() / max.toFloat()).coerceIn(0f, 1f)
+    }
+
+    private suspend fun updateVolumeState() {
+        val installedTargets = findInstalledTargets(playbackWidgets)
+        if (installedTargets.isEmpty()) return
+        val volProgress = getVolumeProgress()
+
+        installedTargets.forEach { installedTarget ->
+            installedTarget.ids.forEach { id ->
+                updateAppWidgetState(service, PreferencesGlanceStateDefinition, id) { prefs ->
+                    prefs.toMutableWidgetPreferences().apply {
+                        this[MusicWidgetKeys.VOLUME_PROGRESS] = volProgress
+                    }
+                }
+                installedTarget.target.widget.update(service, id)
+            }
         }
     }
 
@@ -123,6 +216,9 @@ internal class MusicServiceWidgetUpdater(
                 isPlaying = player.isPlaying,
                 isAvailable = mediaItem != null,
                 playbackPosition = player.playbackProgress(),
+                positionMs = player.currentPosition.coerceAtLeast(0L),
+                durationMs = player.duration.coerceAtLeast(0L),
+                volumeProgress = getVolumeProgress(),
                 artPath = artFile?.absolutePath,
                 dominantColor = dominantColor,
                 insights = WidgetInsightsSnapshot.Empty,
@@ -136,12 +232,16 @@ internal class MusicServiceWidgetUpdater(
     private suspend fun updateProgress(
         installedTargets: List<InstalledWidgetTarget>,
         progress: Float,
+        positionMs: Long,
+        durationMs: Long,
     ) {
         installedTargets.forEach { installedTarget ->
             installedTarget.ids.forEach { id ->
                 updateAppWidgetState(service, PreferencesGlanceStateDefinition, id) { prefs ->
                     prefs.toMutableWidgetPreferences().apply {
                         this[MusicWidgetKeys.PLAYBACK_POSITION] = progress
+                        this[MusicWidgetKeys.POSITION_MS] = positionMs
+                        this[MusicWidgetKeys.DURATION_MS] = durationMs
                     }
                 }
                 installedTarget.target.widget.update(service, id)
@@ -178,29 +278,15 @@ internal class MusicServiceWidgetUpdater(
                 ?.let { ids -> InstalledWidgetTarget(target, ids) }
         }
 
-    private fun Preferences.toMutableWidgetPreferences(): MutablePreferences =
-        mutablePreferencesOf().also { mutable ->
-            this[MusicWidgetKeys.TRACK_TITLE]?.let { mutable[MusicWidgetKeys.TRACK_TITLE] = it }
-            this[MusicWidgetKeys.TRACK_ARTIST]?.let { mutable[MusicWidgetKeys.TRACK_ARTIST] = it }
-            this[MusicWidgetKeys.ART_PATH]?.let { mutable[MusicWidgetKeys.ART_PATH] = it }
-            this[MusicWidgetKeys.IS_PLAYING]?.let { mutable[MusicWidgetKeys.IS_PLAYING] = it }
-            this[MusicWidgetKeys.IS_AVAILABLE]?.let { mutable[MusicWidgetKeys.IS_AVAILABLE] = it }
-            this[MusicWidgetKeys.DOMINANT_COLOR]?.let { mutable[MusicWidgetKeys.DOMINANT_COLOR] = it }
-            this[MusicWidgetKeys.PLAYBACK_POSITION]?.let { mutable[MusicWidgetKeys.PLAYBACK_POSITION] = it }
-            this[MusicWidgetKeys.LISTENING_TIME]?.let { mutable[MusicWidgetKeys.LISTENING_TIME] = it }
-            this[MusicWidgetKeys.TOTAL_PLAYS]?.let { mutable[MusicWidgetKeys.TOTAL_PLAYS] = it }
-            this[MusicWidgetKeys.RECENT_SONGS]?.let { mutable[MusicWidgetKeys.RECENT_SONGS] = it }
-            this[MusicWidgetKeys.GENRES]?.let { mutable[MusicWidgetKeys.GENRES] = it }
-            this[MusicWidgetKeys.RECOMMENDATIONS]?.let { mutable[MusicWidgetKeys.RECOMMENDATIONS] = it }
-            this[MusicWidgetKeys.TOP_SONG_SUMMARY]?.let { mutable[MusicWidgetKeys.TOP_SONG_SUMMARY] = it }
-        }
-
     private fun MutablePreferences.writeSnapshot(snapshot: WidgetSnapshot) {
         this[MusicWidgetKeys.TRACK_TITLE] = snapshot.title
         this[MusicWidgetKeys.TRACK_ARTIST] = snapshot.artist
         this[MusicWidgetKeys.IS_PLAYING] = snapshot.isPlaying
         this[MusicWidgetKeys.IS_AVAILABLE] = snapshot.isAvailable
         this[MusicWidgetKeys.PLAYBACK_POSITION] = snapshot.playbackPosition
+        this[MusicWidgetKeys.POSITION_MS] = snapshot.positionMs
+        this[MusicWidgetKeys.DURATION_MS] = snapshot.durationMs
+        this[MusicWidgetKeys.VOLUME_PROGRESS] = snapshot.volumeProgress
 
         val artPath = snapshot.artPath
         if (artPath != null) {
@@ -335,6 +421,9 @@ internal class MusicServiceWidgetUpdater(
         val isPlaying: Boolean,
         val isAvailable: Boolean,
         val playbackPosition: Float,
+        val positionMs: Long,
+        val durationMs: Long,
+        val volumeProgress: Float,
         val artPath: String?,
         val dominantColor: Int?,
         val insights: WidgetInsightsSnapshot,
@@ -352,7 +441,7 @@ internal class MusicServiceWidgetUpdater(
     )
 
     private companion object {
-        const val WIDGET_PROGRESS_UPDATE_INTERVAL_MILLIS = 30_000L
+        const val WIDGET_PROGRESS_UPDATE_INTERVAL_MILLIS = 1_000L
 
         val playbackWidgets =
             listOf(

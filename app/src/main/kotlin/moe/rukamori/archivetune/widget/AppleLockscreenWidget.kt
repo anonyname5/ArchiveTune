@@ -102,10 +102,21 @@ private fun AppleLockscreenContent(context: Context) {
     val scrubberFill = ColorProvider(Color.White)
 
     // Position & remaining countdown calculation
-    val elapsedSec = (state.playbackPosition * 210).toInt()
-    val remainingSec = (210 - elapsedSec).coerceAtLeast(0)
-    val elapsedStr = "${elapsedSec / 60}:${(elapsedSec % 60).toString().padStart(2, '0')}"
-    val remainingStr = "-${remainingSec / 60}:${(remainingSec % 60).toString().padStart(2, '0')}"
+    val elapsedSec = if (state.durationMs > 0L) (state.positionMs / 1000L).toInt() else 0
+    val totalSec = if (state.durationMs > 0L) (state.durationMs / 1000L).toInt() else 0
+    val remainingSec = (totalSec - elapsedSec).coerceAtLeast(0)
+    val elapsedStr =
+        if (state.isAvailable && state.durationMs > 0L) {
+            "${elapsedSec / 60}:${(elapsedSec % 60).toString().padStart(2, '0')}"
+        } else {
+            "0:00"
+        }
+    val remainingStr =
+        if (state.isAvailable && totalSec > 0) {
+            "-${remainingSec / 60}:${(remainingSec % 60).toString().padStart(2, '0')}"
+        } else {
+            "-0:00"
+        }
 
     // Layer 1: Outer Crystalline Specular Glass Rim (Apple 26dp squircle)
     Box(
@@ -569,24 +580,41 @@ private fun AppleLockscreenContent(context: Context) {
                                 modifier = GlanceModifier.fillMaxWidth().padding(horizontal = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Image(
-                                    provider = ImageProvider(R.drawable.ic_apple_volume_min),
-                                    contentDescription = "Volume Min",
-                                    colorFilter = ColorFilter.tint(textTertiary),
-                                    modifier = GlanceModifier.size(11.dp),
-                                )
+                                Box(
+                                    modifier =
+                                        GlanceModifier
+                                            .size(24.dp)
+                                            .clickable(volumeDownAction()),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Image(
+                                        provider = ImageProvider(R.drawable.ic_apple_volume_min),
+                                        contentDescription = "Volume Min",
+                                        colorFilter = ColorFilter.tint(textTertiary),
+                                        modifier = GlanceModifier.size(11.dp),
+                                    )
+                                }
 
-                                Spacer(GlanceModifier.width(9.dp))
+                                Spacer(GlanceModifier.width(6.dp))
 
                                 // Liquid Glass Volume Channel
                                 Box(
                                     modifier =
                                         GlanceModifier
                                             .defaultWeight()
-                                            .height(3.5.dp)
-                                            .background(Color(0x28FFFFFF))
-                                            .cornerRadius(2.dp),
+                                            .height(16.dp),
+                                    contentAlignment = Alignment.Center,
                                 ) {
+                                    LinearProgressIndicator(
+                                        progress = state.volumeProgress,
+                                        modifier =
+                                            GlanceModifier
+                                                .fillMaxWidth()
+                                                .height(3.5.dp)
+                                                .cornerRadius(2.dp),
+                                        color = ColorProvider(Color.White.copy(alpha = 0.85f)),
+                                        backgroundColor = ColorProvider(Color(0x28FFFFFF)),
+                                    )
                                     Row(
                                         modifier = GlanceModifier.fillMaxSize(),
                                         verticalAlignment = Alignment.CenterVertically,
@@ -596,29 +624,34 @@ private fun AppleLockscreenContent(context: Context) {
                                                 GlanceModifier
                                                     .defaultWeight()
                                                     .fillMaxHeight()
-                                                    .background(Color(0x80FFFFFF))
-                                                    .cornerRadius(2.dp),
+                                                    .clickable(volumeDownAction()),
                                         ) {}
-                                        Spacer(GlanceModifier.width(2.dp))
                                         Box(
                                             modifier =
                                                 GlanceModifier
-                                                    .width(38.dp)
+                                                    .defaultWeight()
                                                     .fillMaxHeight()
-                                                    .background(Color(0x15FFFFFF))
-                                                    .cornerRadius(2.dp),
+                                                    .clickable(volumeUpAction()),
                                         ) {}
                                     }
                                 }
 
-                                Spacer(GlanceModifier.width(9.dp))
+                                Spacer(GlanceModifier.width(6.dp))
 
-                                Image(
-                                    provider = ImageProvider(R.drawable.ic_apple_volume_max),
-                                    contentDescription = "Volume Max",
-                                    colorFilter = ColorFilter.tint(textTertiary),
-                                    modifier = GlanceModifier.size(12.dp),
-                                )
+                                Box(
+                                    modifier =
+                                        GlanceModifier
+                                            .size(24.dp)
+                                            .clickable(volumeUpAction()),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Image(
+                                        provider = ImageProvider(R.drawable.ic_apple_volume_max),
+                                        contentDescription = "Volume Max",
+                                        colorFilter = ColorFilter.tint(textTertiary),
+                                        modifier = GlanceModifier.size(12.dp),
+                                    )
+                                }
                             }
                         }
                     }

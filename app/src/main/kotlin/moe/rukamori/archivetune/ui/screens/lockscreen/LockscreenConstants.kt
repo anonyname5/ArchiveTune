@@ -8,3 +8,6 @@
 package moe.rukamori.archivetune.ui.screens.lockscreen
 
 const val ACTION_LOCKSCREEN_PLAYER = "moe.rukamori.archivetune.action.LOCKSCREEN_PLAYER"
+const val LOCKSCREEN_NOTIFICATION_CHANNEL_ID = "archivetune_lockscreen_player_v3"
+const val LOCKSCREEN_NOTIFICATION_ID = 2002
+

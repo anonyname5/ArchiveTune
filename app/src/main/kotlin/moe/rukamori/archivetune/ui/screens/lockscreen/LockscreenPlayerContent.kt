@@ -7,8 +7,12 @@
 
 package moe.rukamori.archivetune.ui.screens.lockscreen
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
+import android.os.Build
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -19,10 +23,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +50,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -124,6 +132,31 @@ fun LockscreenPlayerContent(
             ((audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: (maxVolume / 2)).toFloat() / maxVolume.toFloat())
                 .coerceIn(0f, 1f),
         )
+    }
+
+    DisposableEffect(context, audioManager, maxVolume) {
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    context: Context?,
+                    intent: Intent?,
+                ) {
+                    val cur = audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: return
+                    currentVolumeProgress = (cur.toFloat() / maxVolume.toFloat()).coerceIn(0f, 1f)
+                }
+            }
+        val filter = IntentFilter("android.media.VOLUME_CHANGED_ACTION")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            context.registerReceiver(receiver, filter)
+        }
+        onDispose {
+            try {
+                context.unregisterReceiver(receiver)
+            } catch (_: Exception) {
+            }
+        }
     }
 
     // 3. Position & Duration Calculations
@@ -545,41 +578,110 @@ fun LockscreenPlayerContent(
                                 modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_apple_volume_min),
-                                    contentDescription = "Min Volume",
-                                    tint = Color.White.copy(alpha = 0.65f),
-                                    modifier = Modifier.size(13.dp),
-                                )
-
-                                Spacer(Modifier.width(10.dp))
-
                                 Box(
                                     modifier =
                                         Modifier
-                                            .weight(1f)
-                                            .height(4.dp)
-                                            .clip(RoundedCornerShape(2.dp))
-                                            .background(Color(0x28FFFFFF)),
+                                            .size(32.dp)
+                                            .clip(CircleShape)
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = null,
+                                                onClick = {
+                                                    audioManager?.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, 0)
+                                                    val cur = audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: return@clickable
+                                                    currentVolumeProgress = (cur.toFloat() / maxVolume.toFloat()).coerceIn(0f, 1f)
+                                                },
+                                            ),
+                                    contentAlignment = Alignment.Center,
                                 ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_apple_volume_min),
+                                        contentDescription = "Min Volume",
+                                        tint = Color.White.copy(alpha = 0.65f),
+                                        modifier = Modifier.size(13.dp),
+                                    )
+                                }
+
+                                Spacer(Modifier.width(6.dp))
+
+                                BoxWithConstraints(
+                                    modifier =
+                                        Modifier
+                                            .weight(1f)
+                                            .height(30.dp)
+                                            .pointerInput(maxVolume) {
+                                                detectTapGestures { offset ->
+                                                    val fraction = (offset.x / size.width).coerceIn(0f, 1f)
+                                                    currentVolumeProgress = fraction
+                                                    val targetVol = (fraction * maxVolume).roundToInt().coerceIn(0, maxVolume)
+                                                    audioManager?.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
+                                                }
+                                            }
+                                            .pointerInput(maxVolume) {
+                                                detectHorizontalDragGestures(
+                                                    onDragStart = { offset ->
+                                                        val fraction = (offset.x / size.width).coerceIn(0f, 1f)
+                                                        currentVolumeProgress = fraction
+                                                        val targetVol = (fraction * maxVolume).roundToInt().coerceIn(0, maxVolume)
+                                                        audioManager?.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
+                                                    },
+                                                    onHorizontalDrag = { change, _ ->
+                                                        change.consume()
+                                                        val fraction = (change.position.x / size.width).coerceIn(0f, 1f)
+                                                        currentVolumeProgress = fraction
+                                                        val targetVol = (fraction * maxVolume).roundToInt().coerceIn(0, maxVolume)
+                                                        audioManager?.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
+                                                    },
+                                                )
+                                            },
+                                    contentAlignment = Alignment.CenterStart,
+                                ) {
+                                    val barWidth = maxWidth
+                                    // Inactive track
                                     Box(
                                         modifier =
                                             Modifier
-                                                .fillMaxWidth(currentVolumeProgress)
-                                                .fillMaxHeight()
-                                                .clip(RoundedCornerShape(2.dp))
+                                                .fillMaxWidth()
+                                                .height(4.5.dp)
+                                                .clip(RoundedCornerShape(2.25.dp))
+                                                .background(Color(0x28FFFFFF)),
+                                    )
+                                    // Active track
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .width(barWidth * currentVolumeProgress)
+                                                .height(4.5.dp)
+                                                .clip(RoundedCornerShape(2.25.dp))
                                                 .background(Color.White.copy(alpha = 0.85f)),
                                     )
                                 }
 
-                                Spacer(Modifier.width(10.dp))
+                                Spacer(Modifier.width(6.dp))
 
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_apple_volume_max),
-                                    contentDescription = "Max Volume",
-                                    tint = Color.White.copy(alpha = 0.65f),
-                                    modifier = Modifier.size(14.dp),
-                                )
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .size(32.dp)
+                                            .clip(CircleShape)
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = null,
+                                                onClick = {
+                                                    audioManager?.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, 0)
+                                                    val cur = audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: return@clickable
+                                                    currentVolumeProgress = (cur.toFloat() / maxVolume.toFloat()).coerceIn(0f, 1f)
+                                                },
+                                            ),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_apple_volume_max),
+                                        contentDescription = "Max Volume",
+                                        tint = Color.White.copy(alpha = 0.65f),
+                                        modifier = Modifier.size(14.dp),
+                                    )
+                                }
                             }
                         }
                     }

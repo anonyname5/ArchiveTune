@@ -57,6 +57,9 @@ internal data class WidgetPlaybackState(
     val isAvailable: Boolean,
     val dominantColor: Int?,
     val playbackPosition: Float,
+    val positionMs: Long = 0L,
+    val durationMs: Long = 0L,
+    val volumeProgress: Float = 0.5f,
 )
 
 @Immutable
@@ -93,6 +96,9 @@ internal fun Preferences.toWidgetPlaybackState(context: Context): WidgetPlayback
         isAvailable = isAvailable,
         dominantColor = this[MusicWidgetKeys.DOMINANT_COLOR],
         playbackPosition = (this[MusicWidgetKeys.PLAYBACK_POSITION] ?: 0f).coerceIn(0f, 1f),
+        positionMs = (this[MusicWidgetKeys.POSITION_MS] ?: 0L).coerceAtLeast(0L),
+        durationMs = (this[MusicWidgetKeys.DURATION_MS] ?: 0L).coerceAtLeast(0L),
+        volumeProgress = (this[MusicWidgetKeys.VOLUME_PROGRESS] ?: 0.5f).coerceIn(0f, 1f),
     )
 }
 
@@ -234,6 +240,10 @@ internal fun playPauseAction(): Action = actionRunCallback<PlayPauseAction>()
 internal fun skipNextAction(): Action = actionRunCallback<SkipNextAction>()
 
 internal fun skipPreviousAction(): Action = actionRunCallback<SkipPrevAction>()
+
+internal fun volumeDownAction(): Action = actionRunCallback<VolumeDownAction>()
+
+internal fun volumeUpAction(): Action = actionRunCallback<VolumeUpAction>()
 
 internal object ArchiveTuneWidgetColors {
     val providers =
