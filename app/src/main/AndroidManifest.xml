@@ -380,6 +380,50 @@
                 android:resource="@xml/widget_zen_tanzaku_info" />
         </receiver>
 
+        <receiver
+            android:name=".widget.AppleLiquidSplitWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_split_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AppleLiquidPosterWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_poster_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AppleLiquidIslandWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_island_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.AppleLiquidOrbWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_orb_info" />
+        </receiver>
+
 
 
         <meta-data

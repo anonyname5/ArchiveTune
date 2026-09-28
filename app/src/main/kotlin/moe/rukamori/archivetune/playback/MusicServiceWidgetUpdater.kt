@@ -44,8 +44,12 @@ import moe.rukamori.archivetune.extensions.SilentHandler
 import moe.rukamori.archivetune.utils.reportException
 import moe.rukamori.archivetune.widget.AppleLiquidCompactWidget
 import moe.rukamori.archivetune.widget.AppleLiquidHeroWidget
+import moe.rukamori.archivetune.widget.AppleLiquidIslandWidget
 import moe.rukamori.archivetune.widget.AppleLiquidMiniWidget
+import moe.rukamori.archivetune.widget.AppleLiquidOrbWidget
 import moe.rukamori.archivetune.widget.AppleLiquidPillWidget
+import moe.rukamori.archivetune.widget.AppleLiquidPosterWidget
+import moe.rukamori.archivetune.widget.AppleLiquidSplitWidget
 import moe.rukamori.archivetune.widget.AppleLockscreenWidget
 import moe.rukamori.archivetune.widget.LoadWidgetInsightsUseCase
 import moe.rukamori.archivetune.widget.MusicWidgetKeys
@@ -426,6 +430,10 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidPillWidget::class.java, AppleLiquidPillWidget()),
                 WidgetTarget(AppleLiquidHeroWidget::class.java, AppleLiquidHeroWidget()),
                 WidgetTarget(AppleLiquidMiniWidget::class.java, AppleLiquidMiniWidget()),
+                WidgetTarget(AppleLiquidSplitWidget::class.java, AppleLiquidSplitWidget()),
+                WidgetTarget(AppleLiquidPosterWidget::class.java, AppleLiquidPosterWidget()),
+                WidgetTarget(AppleLiquidIslandWidget::class.java, AppleLiquidIslandWidget()),
+                WidgetTarget(AppleLiquidOrbWidget::class.java, AppleLiquidOrbWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )
@@ -437,6 +445,10 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidPillWidget::class.java, AppleLiquidPillWidget()),
                 WidgetTarget(AppleLiquidHeroWidget::class.java, AppleLiquidHeroWidget()),
                 WidgetTarget(AppleLiquidMiniWidget::class.java, AppleLiquidMiniWidget()),
+                WidgetTarget(AppleLiquidSplitWidget::class.java, AppleLiquidSplitWidget()),
+                WidgetTarget(AppleLiquidPosterWidget::class.java, AppleLiquidPosterWidget()),
+                WidgetTarget(AppleLiquidIslandWidget::class.java, AppleLiquidIslandWidget()),
+                WidgetTarget(AppleLiquidOrbWidget::class.java, AppleLiquidOrbWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )

@@ -9,4 +9,8 @@
     <string name="widget_apple_liquid_pill_description">Apple Liquid Glass 4×1 slim Dynamic Island pill with liquid aura and live playback time</string>
     <string name="widget_apple_liquid_hero_description">Apple Liquid Glass 4×3 hero showcase deck with Lossless badge, scrubber, and volume controls</string>
     <string name="widget_apple_liquid_mini_description">Apple Liquid Glass 2×1 pocket tile with crystalline rim and tactile play lens</string>
+    <string name="widget_apple_liquid_split_description">Apple Liquid Glass 4×2 split duo deck with album art showcase and glass control center</string>
+    <string name="widget_apple_liquid_poster_description">Apple Liquid Glass 3×3 full-bleed artwork canvas poster with floating visionOS dock</string>
+    <string name="widget_apple_liquid_island_description">Apple Liquid Glass 4×2 Dynamic Island expanded deck with audio waveform visualizer and 5-button dock</string>
+    <string name="widget_apple_liquid_orb_description">Apple Liquid Glass 2×2 visionOS circular orb pebble with illuminated play lens and scrubber</string>
 </resources>
