@@ -544,6 +544,45 @@ object LyricsUtils {
         return normalized.takeIf(::hasMeaningfulLyricsContent) ?: LyricsEntity.LYRICS_NOT_FOUND
     }
 
+    fun parseAnyLyrics(raw: String?, durationMs: Long = 0L): List<LyricsEntry> {
+        if (raw.isNullOrBlank() || raw == LyricsEntity.LYRICS_NOT_FOUND) return emptyList()
+        val normalized = normalizeLyricsText(raw)
+        if (normalized.isBlank() || normalized == LyricsEntity.LYRICS_NOT_FOUND) return emptyList()
+
+        return try {
+            when {
+                isTtml(normalized) -> {
+                    val durationSec = if (durationMs > 0L) (durationMs / 1000L).toInt() else null
+                    parseTtml(normalized, durationSec)
+                        .filter { it.text.isNotBlank() }
+                }
+                isLineSyncedLrc(normalized) -> {
+                    parseLyrics(normalized)
+                        .filter { it.text.isNotBlank() }
+                }
+                else -> {
+                    val lines = normalized.lines()
+                        .map { it.trim() }
+                        .filter { it.isNotBlank() && !it.startsWith("[") }
+                    if (lines.isEmpty()) {
+                        emptyList()
+                    } else {
+                        val intervalMs = if (durationMs > 0L) {
+                            (durationMs / lines.size).coerceIn(2500L, 8000L)
+                        } else {
+                            4000L
+                        }
+                        lines.mapIndexed { index, text ->
+                            LyricsEntry(time = index * intervalMs, text = text)
+                        }
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
     private fun stripCodeFence(lyrics: String): String {
         if (!lyrics.startsWith("```")) return lyrics
 

@@ -35,6 +35,7 @@ object MusicWidgetKeys {
     val TOP_SONG_SUMMARY = stringPreferencesKey("widget_top_song_summary")
     val LYRIC_ACTIVE = stringPreferencesKey("widget_lyric_active")
     val LYRIC_PREV = stringPreferencesKey("widget_lyric_prev")
+    val LYRIC_PREV2 = stringPreferencesKey("widget_lyric_prev2")
     val LYRIC_NEXT = stringPreferencesKey("widget_lyric_next")
     val LYRIC_NEXT2 = stringPreferencesKey("widget_lyric_next2")
     val HAS_LYRICS = booleanPreferencesKey("widget_has_lyrics")
@@ -60,6 +61,7 @@ internal fun Preferences.toMutableWidgetPreferences(): MutablePreferences =
         this[MusicWidgetKeys.TOP_SONG_SUMMARY]?.let { mutable[MusicWidgetKeys.TOP_SONG_SUMMARY] = it }
         this[MusicWidgetKeys.LYRIC_ACTIVE]?.let { mutable[MusicWidgetKeys.LYRIC_ACTIVE] = it }
         this[MusicWidgetKeys.LYRIC_PREV]?.let { mutable[MusicWidgetKeys.LYRIC_PREV] = it }
+        this[MusicWidgetKeys.LYRIC_PREV2]?.let { mutable[MusicWidgetKeys.LYRIC_PREV2] = it }
         this[MusicWidgetKeys.LYRIC_NEXT]?.let { mutable[MusicWidgetKeys.LYRIC_NEXT] = it }
         this[MusicWidgetKeys.LYRIC_NEXT2]?.let { mutable[MusicWidgetKeys.LYRIC_NEXT2] = it }
         this[MusicWidgetKeys.HAS_LYRICS]?.let { mutable[MusicWidgetKeys.HAS_LYRICS] = it }

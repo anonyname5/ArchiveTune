@@ -43,6 +43,12 @@ val ThumbnailCornerRadiusKey = floatPreferencesKey("thumbnailCornerRadius")
 val CropThumbnailToSquareKey = booleanPreferencesKey("cropThumbnailToSquare")
 
 val LockscreenPlayerEnabledKey = booleanPreferencesKey("lockscreenPlayerEnabled")
+val LockscreenPlayerStyleKey = stringPreferencesKey("lockscreenPlayerStyle")
+
+enum class LockscreenPlayerStyle {
+    CLASSIC,
+    LIQUID_LYRICS,
+}
 
 val AodModeEnabledKey = booleanPreferencesKey("aodModeEnabled")
 val AodThumbnailShapeKey = stringPreferencesKey("aodThumbnailShape")

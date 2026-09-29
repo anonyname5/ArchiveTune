@@ -90,44 +90,8 @@ internal class MusicServiceWidgetUpdater(
     private var cachedSongId: String? = null
     private var cachedLyrics: List<LyricsEntry> = emptyList()
 
-    private fun parseAnyLyrics(raw: String?, durationMs: Long): List<LyricsEntry> {
-        if (raw.isNullOrBlank() || raw == LyricsEntity.LYRICS_NOT_FOUND) return emptyList()
-        val normalized = LyricsUtils.normalizeLyricsText(raw)
-        if (normalized.isBlank() || normalized == LyricsEntity.LYRICS_NOT_FOUND) return emptyList()
-
-        return try {
-            when {
-                LyricsUtils.isTtml(normalized) -> {
-                    val durationSec = if (durationMs > 0L) (durationMs / 1000L).toInt() else null
-                    LyricsUtils.parseTtml(normalized, durationSec)
-                        .filter { it.text.isNotBlank() }
-                }
-                LyricsUtils.isLineSyncedLrc(normalized) -> {
-                    LyricsUtils.parseLyrics(normalized)
-                        .filter { it.text.isNotBlank() }
-                }
-                else -> {
-                    val lines = normalized.lines()
-                        .map { it.trim() }
-                        .filter { it.isNotBlank() && !it.startsWith("[") }
-                    if (lines.isEmpty()) {
-                        emptyList()
-                    } else {
-                        val intervalMs = if (durationMs > 0L) {
-                            (durationMs / lines.size).coerceIn(2500L, 8000L)
-                        } else {
-                            4000L
-                        }
-                        lines.mapIndexed { index, text ->
-                            LyricsEntry(time = index * intervalMs, text = text)
-                        }
-                    }
-                }
-            }
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
+    private fun parseAnyLyrics(raw: String?, durationMs: Long): List<LyricsEntry> =
+        LyricsUtils.parseAnyLyrics(raw, durationMs)
 
     private fun ensureLyrics(mediaMetadata: MediaMetadata?, durationMs: Long) {
         if (mediaMetadata == null) {
@@ -192,13 +156,14 @@ internal class MusicServiceWidgetUpdater(
 
     private fun getLyricsForPosition(positionMs: Long): LyricsState {
         val list = cachedLyrics
-        if (list.isEmpty()) return LyricsState(null, null, null, null, false)
+        if (list.isEmpty()) return LyricsState(null, null, null, null, null, false)
         val activeIdx = LyricsUtils.findCurrentLineIndex(list, positionMs, leadMs = 300L)
         val active = list.getOrNull(activeIdx)?.text ?: list.firstOrNull()?.text
         val prev = if (activeIdx > 0) list[activeIdx - 1].text else null
+        val prev2 = if (activeIdx > 1) list[activeIdx - 2].text else null
         val next = if (activeIdx >= 0 && activeIdx + 1 < list.size) list[activeIdx + 1].text else null
         val next2 = if (activeIdx >= 0 && activeIdx + 2 < list.size) list[activeIdx + 2].text else null
-        return LyricsState(active, prev, next, next2, true)
+        return LyricsState(active, prev, prev2, next, next2, true)
     }
 
     private suspend fun updateLyricsOnWidgets() {
@@ -215,12 +180,14 @@ internal class MusicServiceWidgetUpdater(
                             this[MusicWidgetKeys.HAS_LYRICS] = true
                             lyricsState.active?.let { this[MusicWidgetKeys.LYRIC_ACTIVE] = it } ?: remove(MusicWidgetKeys.LYRIC_ACTIVE)
                             lyricsState.prev?.let { this[MusicWidgetKeys.LYRIC_PREV] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV)
+                            lyricsState.prev2?.let { this[MusicWidgetKeys.LYRIC_PREV2] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV2)
                             lyricsState.next?.let { this[MusicWidgetKeys.LYRIC_NEXT] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT)
                             lyricsState.next2?.let { this[MusicWidgetKeys.LYRIC_NEXT2] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT2)
                         } else {
                             this[MusicWidgetKeys.HAS_LYRICS] = false
                             remove(MusicWidgetKeys.LYRIC_ACTIVE)
                             remove(MusicWidgetKeys.LYRIC_PREV)
+                            remove(MusicWidgetKeys.LYRIC_PREV2)
                             remove(MusicWidgetKeys.LYRIC_NEXT)
                             remove(MusicWidgetKeys.LYRIC_NEXT2)
                         }
@@ -234,6 +201,7 @@ internal class MusicServiceWidgetUpdater(
     private data class LyricsState(
         val active: String?,
         val prev: String?,
+        val prev2: String?,
         val next: String?,
         val next2: String?,
         val hasLyrics: Boolean,
@@ -377,6 +345,7 @@ internal class MusicServiceWidgetUpdater(
                 insights = WidgetInsightsSnapshot.Empty,
                 activeLyric = lyricsState.active,
                 prevLyric = lyricsState.prev,
+                prevLyric2 = lyricsState.prev2,
                 nextLyric = lyricsState.next,
                 nextLyric2 = lyricsState.next2,
                 hasLyrics = lyricsState.hasLyrics,
@@ -405,6 +374,7 @@ internal class MusicServiceWidgetUpdater(
                             this[MusicWidgetKeys.HAS_LYRICS] = true
                             lyricsState.active?.let { this[MusicWidgetKeys.LYRIC_ACTIVE] = it } ?: remove(MusicWidgetKeys.LYRIC_ACTIVE)
                             lyricsState.prev?.let { this[MusicWidgetKeys.LYRIC_PREV] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV)
+                            lyricsState.prev2?.let { this[MusicWidgetKeys.LYRIC_PREV2] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV2)
                             lyricsState.next?.let { this[MusicWidgetKeys.LYRIC_NEXT] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT)
                             lyricsState.next2?.let { this[MusicWidgetKeys.LYRIC_NEXT2] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT2)
                         } else {
@@ -474,12 +444,14 @@ internal class MusicServiceWidgetUpdater(
             this[MusicWidgetKeys.HAS_LYRICS] = true
             snapshot.activeLyric?.let { this[MusicWidgetKeys.LYRIC_ACTIVE] = it } ?: remove(MusicWidgetKeys.LYRIC_ACTIVE)
             snapshot.prevLyric?.let { this[MusicWidgetKeys.LYRIC_PREV] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV)
+            snapshot.prevLyric2?.let { this[MusicWidgetKeys.LYRIC_PREV2] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV2)
             snapshot.nextLyric?.let { this[MusicWidgetKeys.LYRIC_NEXT] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT)
             snapshot.nextLyric2?.let { this[MusicWidgetKeys.LYRIC_NEXT2] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT2)
         } else {
             this[MusicWidgetKeys.HAS_LYRICS] = false
             remove(MusicWidgetKeys.LYRIC_ACTIVE)
             remove(MusicWidgetKeys.LYRIC_PREV)
+            remove(MusicWidgetKeys.LYRIC_PREV2)
             remove(MusicWidgetKeys.LYRIC_NEXT)
             remove(MusicWidgetKeys.LYRIC_NEXT2)
         }
@@ -611,6 +583,7 @@ internal class MusicServiceWidgetUpdater(
         val insights: WidgetInsightsSnapshot,
         val activeLyric: String? = null,
         val prevLyric: String? = null,
+        val prevLyric2: String? = null,
         val nextLyric: String? = null,
         val nextLyric2: String? = null,
         val hasLyrics: Boolean = false,

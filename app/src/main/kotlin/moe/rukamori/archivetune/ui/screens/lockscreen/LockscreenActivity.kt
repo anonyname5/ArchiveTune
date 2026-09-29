@@ -38,12 +38,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import moe.rukamori.archivetune.R
+import moe.rukamori.archivetune.constants.LockscreenPlayerStyle
+import moe.rukamori.archivetune.constants.LockscreenPlayerStyleKey
 import moe.rukamori.archivetune.db.MusicDatabase
 import moe.rukamori.archivetune.extensions.togglePlayPause
+import moe.rukamori.archivetune.lyrics.LyricsUtils
 import moe.rukamori.archivetune.models.MediaMetadata
 import moe.rukamori.archivetune.playback.MusicService
 import moe.rukamori.archivetune.playback.PlayerConnection
 import moe.rukamori.archivetune.ui.theme.ArchiveTuneTheme
+import moe.rukamori.archivetune.utils.rememberEnumPreference
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -186,19 +190,50 @@ class LockscreenActivity : ComponentActivity() {
                         duration = 0,
                     )
 
-                LockscreenPlayerContent(
-                    mediaMetadata = metadata,
-                    isPlaying = isPlaying,
-                    position = currentPos,
-                    duration = songDuration,
-                    canSkipPrevious = canSkipPrev,
-                    canSkipNext = canSkipNxt,
-                    onPlayPause = { conn?.player?.togglePlayPause() },
-                    onSkipPrevious = { conn?.seekToPrevious() },
-                    onSkipNext = { conn?.seekToNext() },
-                    onSeek = { conn?.player?.seekTo(it) },
-                    onDismiss = ::dismissLockscreen,
+                val lockscreenPlayerStyle by rememberEnumPreference(
+                    LockscreenPlayerStyleKey,
+                    defaultValue = LockscreenPlayerStyle.CLASSIC,
                 )
+
+                if (lockscreenPlayerStyle == LockscreenPlayerStyle.LIQUID_LYRICS) {
+                    val lyricsEntity by remember(conn, metadata.id) {
+                        conn?.currentLyrics ?: database.lyrics(metadata.id)
+                    }.collectAsStateWithLifecycle(initialValue = null)
+                    val lyrics = remember(lyricsEntity?.lyrics, songDuration) {
+                        lyricsEntity?.lyrics?.let { LyricsUtils.parseAnyLyrics(it, songDuration) } ?: emptyList()
+                    }
+                    val hasLyrics = lyrics.isNotEmpty()
+
+                    LockscreenLyricsPlayerContent(
+                        mediaMetadata = metadata,
+                        isPlaying = isPlaying,
+                        position = currentPos,
+                        duration = songDuration,
+                        canSkipPrevious = canSkipPrev,
+                        canSkipNext = canSkipNxt,
+                        lyrics = lyrics,
+                        hasLyrics = hasLyrics,
+                        onPlayPause = { conn?.player?.togglePlayPause() },
+                        onSkipPrevious = { conn?.seekToPrevious() },
+                        onSkipNext = { conn?.seekToNext() },
+                        onSeek = { conn?.player?.seekTo(it) },
+                        onDismiss = ::dismissLockscreen,
+                    )
+                } else {
+                    LockscreenPlayerContent(
+                        mediaMetadata = metadata,
+                        isPlaying = isPlaying,
+                        position = currentPos,
+                        duration = songDuration,
+                        canSkipPrevious = canSkipPrev,
+                        canSkipNext = canSkipNxt,
+                        onPlayPause = { conn?.player?.togglePlayPause() },
+                        onSkipPrevious = { conn?.seekToPrevious() },
+                        onSkipNext = { conn?.seekToNext() },
+                        onSeek = { conn?.player?.seekTo(it) },
+                        onDismiss = ::dismissLockscreen,
+                    )
+                }
             }
         }
     }

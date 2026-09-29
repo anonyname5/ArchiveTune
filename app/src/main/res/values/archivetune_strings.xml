@@ -747,4 +747,7 @@
     <string name="lockscreen_player_title">Lockscreen Player</string>
     <string name="lockscreen_player_description">Display Apple Liquid Glass player when screen wakes during playback</string>
     <string name="lockscreen_swipe_up_hint">Swipe up to unlock</string>
+    <string name="lockscreen_player_style_title">Lockscreen player style</string>
+    <string name="lockscreen_player_style_classic">Apple Classic (Card with Controls)</string>
+    <string name="lockscreen_player_style_liquid_lyrics">Apple Liquid Lyrics (Live Lyrics &amp; Shelf)</string>
 </resources>

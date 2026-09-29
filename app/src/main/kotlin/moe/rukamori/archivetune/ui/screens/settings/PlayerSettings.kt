@@ -54,6 +54,8 @@ import moe.rukamori.archivetune.constants.ExternalDownloaderPackageKey
 import moe.rukamori.archivetune.constants.HISTORY_DURATION_DEFAULT
 import moe.rukamori.archivetune.constants.HistoryDuration
 import moe.rukamori.archivetune.constants.LockscreenPlayerEnabledKey
+import moe.rukamori.archivetune.constants.LockscreenPlayerStyle
+import moe.rukamori.archivetune.constants.LockscreenPlayerStyleKey
 import moe.rukamori.archivetune.constants.PauseOnDeviceMuteKey
 import moe.rukamori.archivetune.constants.PermanentShuffleKey
 import moe.rukamori.archivetune.constants.PersistentQueueKey
@@ -224,6 +226,11 @@ fun PlayerSettings(navController: NavController) {
         rememberPreference(
             LockscreenPlayerEnabledKey,
             defaultValue = false,
+        )
+    val (lockscreenPlayerStyle, onLockscreenPlayerStyleChange) =
+        rememberEnumPreference(
+            LockscreenPlayerStyleKey,
+            defaultValue = LockscreenPlayerStyle.CLASSIC,
         )
 
     val (crossfadeEnabled, onCrossfadeEnabledChange) =
@@ -446,6 +453,21 @@ fun PlayerSettings(navController: NavController) {
                         icon = { Icon(painterResource(R.drawable.lock), null) },
                         checked = lockscreenPlayerEnabled,
                         onCheckedChange = onLockscreenPlayerEnabledChange,
+                    )
+                }
+
+                item(visible = lockscreenPlayerEnabled) {
+                    EnumListPreference(
+                        title = { Text(stringResource(R.string.lockscreen_player_style_title)) },
+                        icon = { Icon(painterResource(R.drawable.palette), null) },
+                        selectedValue = lockscreenPlayerStyle,
+                        onValueSelected = onLockscreenPlayerStyleChange,
+                        valueText = {
+                            when (it) {
+                                LockscreenPlayerStyle.CLASSIC -> stringResource(R.string.lockscreen_player_style_classic)
+                                LockscreenPlayerStyle.LIQUID_LYRICS -> stringResource(R.string.lockscreen_player_style_liquid_lyrics)
+                            }
+                        },
                     )
                 }
 
