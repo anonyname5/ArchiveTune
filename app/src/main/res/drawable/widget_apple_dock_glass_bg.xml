@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Apple Dock Crystal Glass Background for AppWidget
+  Replicates the iOS Dock optical glass architecture:
+  - Ambient elevation shadow
+  - Intense 1.8dp glowing specular perimeter rim (#E0FFFFFF)
+  - Subtle contrast optical scrim (#200E121B)
+  - Vertical luminous crystal glass gradient (#26FFFFFF -> #0BFFFFFF)
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Layer 0: Ambient Soft Drop Shadow Base -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp" />
+            <solid android:color="#38000000" />
+        </shape>
+    </item>
+
+    <!-- Layer 1: Glowing Specular Perimeter Rim (Apple Dock Rim) -->
+    <item
+        android:bottom="1dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="31dp" />
+            <stroke
+                android:width="1.8dp"
+                android:color="#E0FFFFFF" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Layer 2: Subtle Optical Contrast Scrim -->
+    <item
+        android:bottom="2.5dp"
+        android:left="2.5dp"
+        android:right="2.5dp"
+        android:top="2.5dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="29.5dp" />
+            <solid android:color="#200E121B" />
+        </shape>
+    </item>
+
+    <!-- Layer 3: Crystal Glass Translucent Sheen Body -->
+    <item
+        android:bottom="2.5dp"
+        android:left="2.5dp"
+        android:right="2.5dp"
+        android:top="2.5dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="29.5dp" />
+            <gradient
+                android:angle="270"
+                android:startColor="#26FFFFFF"
+                android:centerColor="#14FFFFFF"
+                android:endColor="#0BFFFFFF"
+                android:type="linear" />
+        </shape>
+    </item>
+</layer-list>

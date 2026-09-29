@@ -73,12 +73,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
 
     val dominant = state.dominantColor?.let { Color(it) }
 
-    // Apple Dock Crystal Glass Material (matching launcher dock specular rim & transparent body)
-    val dockSpecularRim = Color(0x95FFFFFF) // Luminous bright white edge reflection
-    val dockRefractionDepth = Color(0x22000000) // 0.8dp soft refraction bevel
-    val dockGlassUnderScrim = Color(0x3212151F) // Subtle neutral optical foundation for contrast
-    val dockCrystalGlass = Color(0x28FFFFFF) // Pure transparent crystal glass sheen
-    val liquidAuraColor = remember(dominant) { dominant?.copy(alpha = 0.18f) ?: Color.Transparent }
+    val liquidAuraColor = remember(dominant) { dominant?.copy(alpha = 0.16f) ?: Color.Transparent }
     val frostedPillBg = Color(0x30FFFFFF) // Translucent glass capsules
     val liquidLensBg = remember(dominant) {
         dominant?.let {
@@ -102,46 +97,23 @@ private fun AppleLiquidLyricsContent(context: Context) {
     val elapsedStr = if (state.isAvailable && state.durationMs > 0L) "${elapsedSec / 60}:${(elapsedSec % 60).toString().padStart(2, '0')}" else "0:00"
     val remainingStr = if (state.isAvailable && totalSec > 0) "-${remainingSec / 60}:${(remainingSec % 60).toString().padStart(2, '0')}" else "-0:00"
 
-    // Layer 1: Glowing Specular Glass Rim (Apple 32dp continuous squircle)
+    // Apple Dock Crystal Glass Background (Multi-layer XML with Specular Rim & Gradient)
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(dockSpecularRim)
+            .background(ImageProvider(R.drawable.widget_apple_dock_glass_bg))
             .cornerRadius(32.dp)
-            .padding(1.4.dp)
             .clickable(openArchiveTuneAction(context)),
     ) {
-        // Layer 2: Inner Refraction Depth Shadow (3D glass bevel)
-        Box(
-            modifier = GlanceModifier
-                .fillMaxSize()
-                .background(dockRefractionDepth)
-                .cornerRadius(31.dp)
-                .padding(0.8.dp),
-        ) {
-            // Layer 3: Contrast Optical Foundation
+        // Dynamic Liquid Artwork Dye Layer
+        if (state.dominantColor != null) {
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize()
-                    .background(dockGlassUnderScrim)
+                    .background(liquidAuraColor)
                     .cornerRadius(30.dp),
-            ) {
-                // Layer 4: Crystal Clear Glass Sheen
-                Box(
-                    modifier = GlanceModifier
-                        .fillMaxSize()
-                        .background(dockCrystalGlass)
-                        .cornerRadius(30.dp),
-                ) {
-                    // Layer 5: Dynamic Liquid Artwork Dye Layer
-                    if (state.dominantColor != null) {
-                        Box(
-                            modifier = GlanceModifier
-                                .fillMaxSize()
-                                .background(liquidAuraColor)
-                                .cornerRadius(30.dp),
-                        ) {}
-                    }
+            ) {}
+        }
 
                     // Layer 6: Unified Single-Piece Glass Deck (Seamless on Crystal Glass)
                     Column(
@@ -525,8 +497,6 @@ private fun AppleLiquidLyricsContent(context: Context) {
                             }
                         }
                     }
-                }
-            }
-        }
     }
 }
+
