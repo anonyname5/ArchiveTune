@@ -276,48 +276,49 @@ fun LockscreenPlayerContent(
                 )
             }
 
-            // The Apple Liquid Glass Player Card
+            // Apple Dock Crystal Glass Player Card Frame
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .shadow(28.dp, RoundedCornerShape(28.dp))
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(Color(0x60FFFFFF)) // Layer 1: Outer specular glass rim
-                        .padding(1.2.dp),
+                        .shadow(28.dp, RoundedCornerShape(32.dp))
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(Color(0xE0FFFFFF)) // Layer 1: Outer specular glass rim (Apple Dock rim)
+                        .padding(1.8.dp),
             ) {
                 Box(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(27.dp))
-                            .background(Color(0x30000000)) // Layer 2: 3D refraction shadow
-                            .padding(0.8.dp),
+                            .clip(RoundedCornerShape(30.2.dp))
+                            .background(Color(0x200E121B)) // Layer 2: Subtle optical contrast scrim
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0x26FFFFFF),
+                                        Color(0x14FFFFFF),
+                                        Color(0x0BFFFFFF),
+                                    ),
+                                ),
+                            ), // Layer 3: Crystal glass translucent sheen gradient
                 ) {
-                    Box(
+                    // Dynamic Liquid Artwork Dye Layer
+                    if (dominantColor != null) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .matchParentSize()
+                                    .background(dominantColor!!.copy(alpha = 0.16f)),
+                        )
+                    }
+
+                    // Glass Card Content
+                    Column(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(26.dp))
-                                .background(Color(0x6E13141E)), // Layer 3: Smoked crystal obsidian base
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
                     ) {
-                        // Dynamic Liquid Artwork Dye Layer
-                        if (dominantColor != null) {
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .matchParentSize()
-                                        .background(dominantColor!!.copy(alpha = 0.20f)),
-                            )
-                        }
-
-                        // Glass Card Content
-                        Column(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                        ) {
                             // Top Bevel Specular Reflection Line
                             Box(
                                 modifier =
@@ -689,4 +690,3 @@ fun LockscreenPlayerContent(
             }
         }
     }
-}
