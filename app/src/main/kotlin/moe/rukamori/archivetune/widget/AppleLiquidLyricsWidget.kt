@@ -72,15 +72,21 @@ private fun AppleLiquidLyricsContent(context: Context) {
     val hasLyrics = prefs[MusicWidgetKeys.HAS_LYRICS] ?: (activeLyric != null)
 
     val dominant = state.dominantColor?.let { Color(it) }
-    val glassBaseDark = Color(0x6012131D)
-    val liquidAuraColor = remember(dominant) { dominant?.copy(alpha = 0.28f) ?: Color.Transparent }
+
+    // Apple Dock Crystal Glass Material (matching launcher dock specular rim & transparent body)
+    val dockSpecularRim = Color(0x95FFFFFF) // Luminous bright white edge reflection
+    val dockRefractionDepth = Color(0x22000000) // 0.8dp soft refraction bevel
+    val dockGlassUnderScrim = Color(0x3212151F) // Subtle neutral optical foundation for contrast
+    val dockCrystalGlass = Color(0x28FFFFFF) // Pure transparent crystal glass sheen
+    val liquidAuraColor = remember(dominant) { dominant?.copy(alpha = 0.18f) ?: Color.Transparent }
+    val frostedPillBg = Color(0x30FFFFFF) // Translucent glass capsules
     val liquidLensBg = remember(dominant) {
         dominant?.let {
-            val r = (it.red * 0.45f + 1f * 0.55f).coerceIn(0f, 1f)
-            val g = (it.green * 0.45f + 1f * 0.55f).coerceIn(0f, 1f)
-            val b = (it.blue * 0.45f + 1f * 0.55f).coerceIn(0f, 1f)
-            Color(red = r, green = g, blue = b, alpha = 0.42f)
-        } ?: Color(0x35FFFFFF)
+            val r = (it.red * 0.40f + 1f * 0.60f).coerceIn(0f, 1f)
+            val g = (it.green * 0.40f + 1f * 0.60f).coerceIn(0f, 1f)
+            val b = (it.blue * 0.40f + 1f * 0.60f).coerceIn(0f, 1f)
+            Color(red = r, green = g, blue = b, alpha = 0.50f)
+        } ?: Color(0x40FFFFFF)
     }
 
     val textPrimary = ColorProvider(Color.White)
@@ -96,59 +102,60 @@ private fun AppleLiquidLyricsContent(context: Context) {
     val elapsedStr = if (state.isAvailable && state.durationMs > 0L) "${elapsedSec / 60}:${(elapsedSec % 60).toString().padStart(2, '0')}" else "0:00"
     val remainingStr = if (state.isAvailable && totalSec > 0) "-${remainingSec / 60}:${(remainingSec % 60).toString().padStart(2, '0')}" else "-0:00"
 
-    // Layer 1: Outer Crystalline Specular Glass Rim (Apple 30dp squircle)
+    // Layer 1: Glowing Specular Glass Rim (Apple 32dp continuous squircle)
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(Color(0x60FFFFFF))
-            .cornerRadius(30.dp)
-            .padding(1.2.dp)
+            .background(dockSpecularRim)
+            .cornerRadius(32.dp)
+            .padding(1.4.dp)
             .clickable(openArchiveTuneAction(context)),
     ) {
-        // Layer 2: Inner Refraction Depth Shadow
+        // Layer 2: Inner Refraction Depth Shadow (3D glass bevel)
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .background(Color(0x30000000))
-                .cornerRadius(29.dp)
+                .background(dockRefractionDepth)
+                .cornerRadius(31.dp)
                 .padding(0.8.dp),
         ) {
-            // Layer 3: Smoked Crystal Acrylic Base
+            // Layer 3: Contrast Optical Foundation
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize()
-                    .background(glassBaseDark)
-                    .cornerRadius(28.dp),
+                    .background(dockGlassUnderScrim)
+                    .cornerRadius(30.dp),
             ) {
-                // Layer 4: Dynamic Liquid Artwork Dye Layer
-                if (state.dominantColor != null) {
-                    Box(
-                        modifier = GlanceModifier
-                            .fillMaxSize()
-                            .background(liquidAuraColor)
-                            .cornerRadius(28.dp),
-                    ) {}
-                }
-
-                // Layer 5: Glass Content & Controls
-                Column(
+                // Layer 4: Crystal Clear Glass Sheen
+                Box(
                     modifier = GlanceModifier
                         .fillMaxSize()
-                        .padding(12.dp),
+                        .background(dockCrystalGlass)
+                        .cornerRadius(30.dp),
                 ) {
-                    // ─────────────────────────────────────────────────────────────
-                    // TOP: MASSIVE SYNCHRONIZED LYRICS STAGE
-                    // ─────────────────────────────────────────────────────────────
-                    Box(
+                    // Layer 5: Dynamic Liquid Artwork Dye Layer
+                    if (state.dominantColor != null) {
+                        Box(
+                            modifier = GlanceModifier
+                                .fillMaxSize()
+                                .background(liquidAuraColor)
+                                .cornerRadius(30.dp),
+                        ) {}
+                    }
+
+                    // Layer 6: Unified Single-Piece Glass Deck (Seamless on Crystal Glass)
+                    Column(
                         modifier = GlanceModifier
-                            .fillMaxWidth()
-                            .defaultWeight()
-                            .background(Color(0x28FFFFFF))
-                            .cornerRadius(20.dp)
-                            .padding(12.dp),
+                            .fillMaxSize()
+                            .padding(13.dp),
                     ) {
+                        // ─────────────────────────────────────────────────────────────
+                        // TOP: SYNCHRONIZED LYRICS STAGE (Seamless on Crystal Glass)
+                        // ─────────────────────────────────────────────────────────────
                         Column(
-                            modifier = GlanceModifier.fillMaxSize(),
+                            modifier = GlanceModifier
+                                .fillMaxWidth()
+                                .defaultWeight(),
                         ) {
                             // Stage Header: Artwork Thumbnail, Synced Badge, & AirPlay Pill
                             Row(
@@ -159,7 +166,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                 Box(
                                     modifier = GlanceModifier
                                         .size(24.dp)
-                                        .background(Color(0x40FFFFFF))
+                                        .background(Color(0x60FFFFFF))
                                         .cornerRadius(7.dp)
                                         .padding(0.8.dp),
                                 ) {
@@ -167,7 +174,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                         artPath = prefs[MusicWidgetKeys.ART_PATH],
                                         modifier = GlanceModifier
                                             .fillMaxSize()
-                                            .cornerRadius(6.dp),
+                                            .cornerRadius(6.2.dp),
                                         contentDescription = state.title,
                                         targetSize = 24.dp,
                                     )
@@ -175,17 +182,17 @@ private fun AppleLiquidLyricsContent(context: Context) {
 
                                 Spacer(GlanceModifier.width(8.dp))
 
-                                // Synced Lyrics Badge
+                                // Synced Lyrics Badge (Frosted Translucent Capsule)
                                 Box(
                                     modifier = GlanceModifier
-                                        .background(Color(0x55000000))
+                                        .background(frostedPillBg)
                                         .cornerRadius(8.dp)
-                                        .padding(horizontal = 7.dp, vertical = 2.5.dp),
+                                        .padding(horizontal = 8.dp, vertical = 3.dp),
                                 ) {
                                     Text(
                                         text = if (hasLyrics) "SYNCED LYRICS" else "LIVE PLAYER",
                                         style = TextStyle(
-                                            color = textTertiary,
+                                            color = textPrimary,
                                             fontSize = 8.sp,
                                             fontWeight = FontWeight.Bold,
                                         ),
@@ -194,12 +201,12 @@ private fun AppleLiquidLyricsContent(context: Context) {
 
                                 Spacer(GlanceModifier.defaultWeight())
 
-                                // AirPlay Capsule
+                                // AirPlay Capsule (Frosted Translucent Capsule)
                                 Row(
                                     modifier = GlanceModifier
-                                        .background(Color(0x55000000))
+                                        .background(frostedPillBg)
                                         .cornerRadius(10.dp)
-                                        .padding(horizontal = 7.dp, vertical = 2.5.dp),
+                                        .padding(horizontal = 8.dp, vertical = 3.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Image(
@@ -220,9 +227,9 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                 }
                             }
 
-                            Spacer(GlanceModifier.height(6.dp))
+                            Spacer(GlanceModifier.height(8.dp))
 
-                            // Centered Lyrics Flow
+                            // Centered Lyrics Flow (Directly on Glass)
                             Column(
                                 modifier = GlanceModifier
                                     .fillMaxWidth()
@@ -236,7 +243,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                             text = prevLyric2,
                                             maxLines = 1,
                                             style = TextStyle(
-                                                color = ColorProvider(Color(0x4DFFFFFF)),
+                                                color = ColorProvider(Color(0x55FFFFFF)),
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Normal,
                                             ),
@@ -251,7 +258,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                             text = prevLyric,
                                             maxLines = 1,
                                             style = TextStyle(
-                                                color = ColorProvider(Color(0x85FFFFFF)),
+                                                color = ColorProvider(Color(0x8AFFFFFF)),
                                                 fontSize = 13.5.sp,
                                                 fontWeight = FontWeight.Medium,
                                             ),
@@ -264,7 +271,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                     Row(
                                         modifier = GlanceModifier
                                             .fillMaxWidth()
-                                            .background(Color(0x33FFFFFF))
+                                            .background(Color(0x38FFFFFF))
                                             .cornerRadius(12.dp)
                                             .padding(horizontal = 10.dp, vertical = 6.dp),
                                         verticalAlignment = Alignment.CenterVertically,
@@ -296,7 +303,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                             text = nextLyric,
                                             maxLines = 1,
                                             style = TextStyle(
-                                                color = ColorProvider(Color(0x8CFFFFFF)),
+                                                color = ColorProvider(Color(0x8EFFFFFF)),
                                                 fontSize = 13.5.sp,
                                                 fontWeight = FontWeight.Medium,
                                             ),
@@ -311,7 +318,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                             text = nextLyric2,
                                             maxLines = 1,
                                             style = TextStyle(
-                                                color = ColorProvider(Color(0x4DFFFFFF)),
+                                                color = ColorProvider(Color(0x55FFFFFF)),
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Normal,
                                             ),
@@ -364,20 +371,20 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                 }
                             }
                         }
-                    }
 
-                    Spacer(GlanceModifier.height(10.dp))
+                        // Subtle Hairline Frosted Separator
+                        Box(
+                            modifier = GlanceModifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color(0x20FFFFFF)),
+                        ) {}
 
-                    // ─────────────────────────────────────────────────────────────
-                    // BOTTOM: CRYSTALLINE GLASS CONTROL SHELF
-                    // ─────────────────────────────────────────────────────────────
-                    Box(
-                        modifier = GlanceModifier
-                            .fillMaxWidth()
-                            .background(Color(0x35FFFFFF))
-                            .cornerRadius(20.dp)
-                            .padding(12.dp),
-                    ) {
+                        Spacer(GlanceModifier.height(10.dp))
+
+                        // ─────────────────────────────────────────────────────────────
+                        // BOTTOM: CONTROLS SHELF (Seamless on Crystal Glass)
+                        // ─────────────────────────────────────────────────────────────
                         Column(modifier = GlanceModifier.fillMaxWidth()) {
                             // Title & Artist
                             Text(
@@ -464,7 +471,7 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                 Box(
                                     modifier = GlanceModifier
                                         .size(46.dp)
-                                        .background(Color(0x60FFFFFF))
+                                        .background(Color(0x80FFFFFF))
                                         .cornerRadius(23.dp)
                                         .padding(1.dp)
                                         .clickable(playPauseAction()),
