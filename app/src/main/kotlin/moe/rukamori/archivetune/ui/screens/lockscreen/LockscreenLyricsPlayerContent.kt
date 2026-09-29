@@ -221,14 +221,14 @@ fun LockscreenLyricsPlayerContent(
                     indication = null,
                     onClick = onDismiss,
                 ),
-        contentAlignment = Alignment.BottomCenter,
+        contentAlignment = Alignment.Center,
     ) {
         // Floating 4x4 Liquid Glass Lyrics Deck
         Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 20.dp)
+                    .padding(horizontal = 18.dp)
                     .offset { IntOffset(0, dismissOffsetY.value.roundToInt()) }
                     .pointerInput(Unit) {
                         detectVerticalDragGestures(
