@@ -157,13 +157,20 @@ internal class MusicServiceWidgetUpdater(
     private fun getLyricsForPosition(positionMs: Long): LyricsState {
         val list = cachedLyrics
         if (list.isEmpty()) return LyricsState(null, null, null, null, null, false)
-        val activeIdx = LyricsUtils.findCurrentLineIndex(list, positionMs, leadMs = 300L)
-        val active = list.getOrNull(activeIdx)?.text ?: list.firstOrNull()?.text
-        val prev = if (activeIdx > 0) list[activeIdx - 1].text else null
-        val prev2 = if (activeIdx > 1) list[activeIdx - 2].text else null
-        val next = if (activeIdx >= 0 && activeIdx + 1 < list.size) list[activeIdx + 1].text else null
-        val next2 = if (activeIdx >= 0 && activeIdx + 2 < list.size) list[activeIdx + 2].text else null
-        return LyricsState(active, prev, prev2, next, next2, true)
+        val activeIdx = LyricsUtils.findCurrentLineIndex(list, positionMs, leadMs = 150L)
+        return if (activeIdx >= 0) {
+            val active = list[activeIdx].text
+            val prev = if (activeIdx > 0) list[activeIdx - 1].text else null
+            val prev2 = if (activeIdx > 1) list[activeIdx - 2].text else null
+            val next = if (activeIdx + 1 < list.size) list[activeIdx + 1].text else null
+            val next2 = if (activeIdx + 2 < list.size) list[activeIdx + 2].text else null
+            LyricsState(active, prev, prev2, next, next2, true)
+        } else {
+            // Song Intro / Instrumental before first lyric line
+            val next = list.firstOrNull()?.text
+            val next2 = if (list.size > 1) list[1].text else null
+            LyricsState(active = null, prev = null, prev2 = null, next = next, next2 = next2, hasLyrics = true)
+        }
     }
 
     private suspend fun updateLyricsOnWidgets() {
@@ -277,7 +284,24 @@ internal class MusicServiceWidgetUpdater(
                     if (installedTargets.isEmpty()) return@launch
 
                     while (isActive && player.isPlaying) {
-                        delay(WIDGET_PROGRESS_UPDATE_INTERVAL_MILLIS)
+                        val currentPos = player.currentPosition.coerceAtLeast(0L)
+                        val list = cachedLyrics
+                        val delayMs =
+                            if (list.isNotEmpty()) {
+                                val activeIdx = LyricsUtils.findCurrentLineIndex(list, currentPos, leadMs = 150L)
+                                val nextIdx = if (activeIdx < 0) 0 else activeIdx + 1
+                                if (nextIdx in list.indices) {
+                                    val nextTriggerMs = list[nextIdx].time - 150L
+                                    val diff = nextTriggerMs - currentPos
+                                    if (diff in 30L..999L) diff else WIDGET_PROGRESS_UPDATE_INTERVAL_MILLIS
+                                } else {
+                                    WIDGET_PROGRESS_UPDATE_INTERVAL_MILLIS
+                                }
+                            } else {
+                                WIDGET_PROGRESS_UPDATE_INTERVAL_MILLIS
+                            }
+
+                        delay(delayMs)
                         val isInteractive = powerManager?.isInteractive ?: true
                         if (isInteractive && player.isPlaying) {
                             updateProgress(

@@ -17,6 +17,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -194,7 +195,7 @@ fun LockscreenLyricsPlayerContent(
 
     // Active Lyric Index Tracking & Auto-Scroll
     val currentLineIndex = remember(lyrics, currentPositionMs) {
-        if (lyrics.isEmpty()) -1 else LyricsUtils.findCurrentLineIndex(lyrics, currentPositionMs, leadMs = 300L)
+        if (lyrics.isEmpty()) -1 else LyricsUtils.findCurrentLineIndex(lyrics, currentPositionMs, leadMs = 150L)
     }
     val lazyListState = rememberLazyListState()
 
@@ -296,259 +297,225 @@ fun LockscreenLyricsPlayerContent(
                 )
             }
 
-            // Apple Liquid Glass 4x4 Card Frame
+            // Apple Dock Crystal Glass 4x4 Card Frame
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .shadow(28.dp, RoundedCornerShape(30.dp))
-                        .clip(RoundedCornerShape(30.dp))
-                        .background(Color(0x60FFFFFF)) // Layer 1: Outer specular glass rim
-                        .padding(1.2.dp),
+                        .shadow(28.dp, RoundedCornerShape(32.dp))
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(Color(0xE0FFFFFF)) // Layer 1: Outer specular glass rim (Apple Dock rim)
+                        .padding(1.8.dp),
             ) {
                 Box(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(29.dp))
-                            .background(Color(0x30000000)) // Layer 2: 3D refraction shadow
-                            .padding(0.8.dp),
+                            .clip(RoundedCornerShape(30.2.dp))
+                            .background(Color(0x200E121B)) // Layer 2: Subtle optical contrast scrim
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0x26FFFFFF),
+                                        Color(0x14FFFFFF),
+                                        Color(0x0BFFFFFF),
+                                    ),
+                                ),
+                            ), // Layer 3: Crystal glass translucent sheen gradient
                 ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(28.dp))
-                                .background(Color(0x6012131D)), // Layer 3: Smoked crystal acrylic base
-                    ) {
-                        // Layer 4: Dynamic Artwork Dye
-                        if (dominantColor != null) {
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .matchParentSize()
-                                        .background(dominantColor!!.copy(alpha = 0.28f)),
-                            )
-                        }
-
-                        // Layer 5: Glass Content & Controls
-                        Column(
+                    // Layer 4: Dynamic Artwork Dye
+                    if (dominantColor != null) {
+                        Box(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(12.dp),
-                        ) {
-                            // ─────────────────────────────────────────────────────────────
-                            // TOP: SYNCHRONIZED LYRICS STAGE
-                            // ─────────────────────────────────────────────────────────────
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(22.dp))
-                                        .background(Color(0x28FFFFFF))
-                                        .padding(12.dp),
+                                    .matchParentSize()
+                                    .background(dominantColor!!.copy(alpha = 0.16f)),
+                        )
+                    }
+
+                    // Layer 5: Seamless Single-Piece Crystal Glass Deck
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(13.dp),
+                    ) {
+                        // ─────────────────────────────────────────────────────────────
+                        // TOP: SYNCHRONIZED LYRICS STAGE
+                        // ─────────────────────────────────────────────────────────────
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            // Stage Header: Artwork Thumbnail, Badge & AirPlay Pill
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Column(modifier = Modifier.fillMaxWidth()) {
-                                    // Stage Header: Artwork Thumbnail, Badge & AirPlay Pill
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        // Mini Artwork Thumbnail
-                                        Box(
-                                            modifier =
-                                                Modifier
-                                                    .size(28.dp)
-                                                    .clip(RoundedCornerShape(8.dp))
-                                                    .background(Color(0x40FFFFFF))
-                                                    .padding(0.8.dp),
-                                        ) {
-                                            AsyncImage(
-                                                model = mediaMetadata.thumbnailUrl,
-                                                contentDescription = mediaMetadata.title,
-                                                contentScale = ContentScale.Crop,
-                                                modifier =
-                                                    Modifier
-                                                        .fillMaxSize()
-                                                        .clip(RoundedCornerShape(7.5.dp)),
-                                            )
-                                        }
+                                // Mini Artwork Thumbnail
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .size(26.dp)
+                                            .clip(RoundedCornerShape(7.5.dp))
+                                            .background(Color(0x60FFFFFF))
+                                            .padding(0.8.dp),
+                                ) {
+                                    AsyncImage(
+                                        model = mediaMetadata.thumbnailUrl,
+                                        contentDescription = mediaMetadata.title,
+                                        contentScale = ContentScale.Crop,
+                                        modifier =
+                                            Modifier
+                                                .fillMaxSize()
+                                                .clip(RoundedCornerShape(6.7.dp)),
+                                    )
+                                }
 
-                                        Spacer(Modifier.width(8.dp))
+                                Spacer(Modifier.width(8.dp))
 
-                                        // Synced Lyrics Badge
-                                        Box(
-                                            modifier =
-                                                Modifier
-                                                    .clip(RoundedCornerShape(8.dp))
-                                                    .background(Color(0x55000000))
-                                                    .padding(horizontal = 8.dp, vertical = 3.dp),
-                                        ) {
-                                            Text(
-                                                text = if (hasLyrics) "SYNCED LYRICS" else "LIVE PLAYER",
-                                                color = Color.White.copy(alpha = 0.75f),
-                                                fontSize = 8.5.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                        }
+                                // Synced Lyrics Badge
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color(0x30FFFFFF))
+                                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                                ) {
+                                    Text(
+                                        text = if (hasLyrics) "SYNCED LYRICS" else "LIVE PLAYER",
+                                        color = Color.White,
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
 
-                                        Spacer(Modifier.weight(1f))
+                                Spacer(Modifier.weight(1f))
 
-                                        // AirPlay Capsule
-                                        Row(
-                                            modifier =
-                                                Modifier
-                                                    .clip(RoundedCornerShape(10.dp))
-                                                    .background(Color(0x55000000))
-                                                    .padding(horizontal = 8.dp, vertical = 3.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.ic_apple_airplay),
-                                                contentDescription = "AirPlay",
-                                                tint = Color(0xFF38A3FF),
-                                                modifier = Modifier.size(11.dp),
-                                            )
-                                            Spacer(Modifier.width(3.5.dp))
-                                            Text(
-                                                text = "AirPlay",
-                                                color = Color.White,
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                        }
-                                    }
-
-                                    Spacer(Modifier.height(8.dp))
-
-                                    // Lyrics Waterfall Stage
-                                    if (hasLyrics && lyrics.isNotEmpty()) {
-                                        LazyColumn(
-                                            state = lazyListState,
-                                            modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(min = 180.dp, max = 220.dp),
-                                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                                        ) {
-                                            itemsIndexed(lyrics) { index, item ->
-                                                val isActive = index == currentLineIndex
-                                                val distance = abs(index - currentLineIndex)
-
-                                                if (isActive) {
-                                                    // Active Line: Illuminated Hero Focus Capsule
-                                                    Row(
-                                                        modifier =
-                                                            Modifier
-                                                                .fillMaxWidth()
-                                                                .clip(RoundedCornerShape(12.dp))
-                                                                .background(Color(0x35FFFFFF))
-                                                                .clickable { onSeek(item.time) }
-                                                                .padding(horizontal = 10.dp, vertical = 7.dp),
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                    ) {
-                                                        Box(
-                                                            modifier =
-                                                                Modifier
-                                                                    .width(3.5.dp)
-                                                                    .height(20.dp)
-                                                                    .clip(RoundedCornerShape(2.dp))
-                                                                    .background(Color.White),
-                                                        )
-                                                        Spacer(Modifier.width(8.dp))
-                                                        Text(
-                                                            text = item.text,
-                                                            color = Color.White,
-                                                            fontSize = 17.5.sp,
-                                                            fontWeight = FontWeight.Bold,
-                                                            modifier = Modifier.weight(1f),
-                                                        )
-                                                    }
-                                                } else {
-                                                    val alpha =
-                                                        when (distance) {
-                                                            1 -> 0.52f
-                                                            2 -> 0.30f
-                                                            else -> 0.18f
-                                                        }
-                                                    val fontSize =
-                                                        when (distance) {
-                                                            1 -> 13.5.sp
-                                                            2 -> 11.5.sp
-                                                            else -> 10.5.sp
-                                                        }
-                                                    val weight = if (distance == 1) FontWeight.Medium else FontWeight.Normal
-
-                                                    Text(
-                                                        text = item.text,
-                                                        color = Color.White.copy(alpha = alpha),
-                                                        fontSize = fontSize,
-                                                        fontWeight = weight,
-                                                        modifier =
-                                                            Modifier
-                                                                .fillMaxWidth()
-                                                                .clip(RoundedCornerShape(8.dp))
-                                                                .clickable { onSeek(item.time) }
-                                                                .padding(horizontal = 12.dp, vertical = 3.dp),
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        // Elegant Placeholder when instrumental or loading
-                                        Column(
-                                            modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .heightIn(min = 160.dp, max = 200.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center,
-                                        ) {
-                                            Text(
-                                                text = "♪",
-                                                color = Color.White.copy(alpha = 0.85f),
-                                                fontSize = 28.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Spacer(Modifier.height(4.dp))
-                                            Text(
-                                                text = mediaMetadata.title.ifBlank { context.getString(R.string.app_name) },
-                                                color = Color.White,
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                maxLines = 1,
-                                                textAlign = TextAlign.Center,
-                                            )
-                                            Spacer(Modifier.height(2.dp))
-                                            Text(
-                                                text = mediaMetadata.artists.joinToString { it.name }.ifBlank { context.getString(R.string.lyrics) },
-                                                color = Color.White.copy(alpha = 0.65f),
-                                                fontSize = 12.sp,
-                                                fontWeight = FontWeight.Normal,
-                                                maxLines = 1,
-                                                textAlign = TextAlign.Center,
-                                            )
-                                        }
-                                    }
+                                // AirPlay Capsule
+                                Row(
+                                    modifier =
+                                        Modifier
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(Color(0x30FFFFFF))
+                                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_apple_airplay),
+                                        contentDescription = "AirPlay",
+                                        tint = Color(0xFF38A3FF),
+                                        modifier = Modifier.size(11.dp),
+                                    )
+                                    Spacer(Modifier.width(3.5.dp))
+                                    Text(
+                                        text = "AirPlay",
+                                        color = Color.White,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
                                 }
                             }
 
-                            Spacer(Modifier.height(10.dp))
+                            Spacer(Modifier.height(8.dp))
 
-                            // ─────────────────────────────────────────────────────────────
-                            // BOTTOM: CRYSTALLINE GLASS CONTROL SHELF
-                            // ─────────────────────────────────────────────────────────────
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(22.dp))
-                                        .background(Color(0x35FFFFFF))
-                                        .padding(12.dp),
-                            ) {
-                                Column(modifier = Modifier.fillMaxWidth()) {
+                            // Lyrics Waterfall Stage (Fluid Apple Music Waterfall)
+                            if (hasLyrics && lyrics.isNotEmpty()) {
+                                LazyColumn(
+                                    state = lazyListState,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 180.dp, max = 220.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    itemsIndexed(lyrics) { index, item ->
+                                        val isActive = index == currentLineIndex
+                                        val distance = abs(index - currentLineIndex)
+
+                                        val targetAlpha = when {
+                                            isActive -> 1f
+                                            distance == 1 -> 0.65f
+                                            distance == 2 -> 0.35f
+                                            else -> 0.18f
+                                        }
+                                        val animatedAlpha by animateFloatAsState(
+                                            targetValue = targetAlpha,
+                                            animationSpec = tween(250, easing = FastOutSlowInEasing),
+                                            label = "lyricAlpha_$index",
+                                        )
+
+                                        val targetFontSize = when {
+                                            isActive -> 18.sp
+                                            distance == 1 -> 14.sp
+                                            else -> 12.sp
+                                        }
+
+                                        Text(
+                                            text = item.text,
+                                            color = Color.White.copy(alpha = animatedAlpha),
+                                            fontSize = targetFontSize,
+                                            fontWeight = if (isActive) FontWeight.Bold else if (distance == 1) FontWeight.Medium else FontWeight.Normal,
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .clip(RoundedCornerShape(8.dp))
+                                                    .clickable { onSeek(item.time) }
+                                                    .padding(horizontal = 6.dp, vertical = if (isActive) 5.dp else 3.dp),
+                                        )
+                                    }
+                                }
+                            } else {
+                                // Elegant Placeholder when instrumental or loading
+                                Column(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 160.dp, max = 200.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Text(
+                                        text = "♪",
+                                        color = Color.White.copy(alpha = 0.85f),
+                                        fontSize = 28.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text = mediaMetadata.title.ifBlank { context.getString(R.string.app_name) },
+                                        color = Color.White,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Spacer(Modifier.height(2.dp))
+                                    Text(
+                                        text = mediaMetadata.artists.joinToString { it.name }.ifBlank { context.getString(R.string.lyrics) },
+                                        color = Color.White.copy(alpha = 0.65f),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        maxLines = 1,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            }
+                        }
+
+                        // Subtle Hairline Frosted Separator
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(Color(0x20FFFFFF)),
+                        )
+
+                        Spacer(Modifier.height(10.dp))
+
+                        // ─────────────────────────────────────────────────────────────
+                        // BOTTOM: CONTROLS SHELF (Seamless on Crystal Glass)
+                        // ─────────────────────────────────────────────────────────────
+                        Column(modifier = Modifier.fillMaxWidth()) {
                                     // Title & Artist
                                     Text(
                                         text = mediaMetadata.title.ifBlank { context.getString(R.string.app_name) },
@@ -740,5 +707,3 @@ fun LockscreenLyricsPlayerContent(
                 }
             }
         }
-    }
-}

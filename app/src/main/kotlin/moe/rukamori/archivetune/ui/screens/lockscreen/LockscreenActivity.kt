@@ -166,14 +166,20 @@ class LockscreenActivity : ComponentActivity() {
                 var currentPos by remember { mutableLongStateOf(0L) }
                 var songDuration by remember { mutableLongStateOf(0L) }
 
-                LaunchedEffect(conn, isPlaying) {
+                val lockscreenPlayerStyle by rememberEnumPreference(
+                    LockscreenPlayerStyleKey,
+                    defaultValue = LockscreenPlayerStyle.CLASSIC,
+                )
+
+                LaunchedEffect(conn, isPlaying, lockscreenPlayerStyle) {
                     if (conn != null) {
+                        val interval = if (lockscreenPlayerStyle == LockscreenPlayerStyle.LIQUID_LYRICS) 100L else 500L
                         currentPos = (conn.player?.currentPosition ?: 0L).coerceAtLeast(0L)
                         songDuration = conn.player?.duration?.coerceAtLeast(0L) ?: 0L
                         while (isPlaying) {
                             currentPos = (conn.player?.currentPosition ?: 0L).coerceAtLeast(0L)
                             songDuration = conn.player?.duration?.coerceAtLeast(0L) ?: 0L
-                            delay(500L)
+                            delay(interval)
                         }
                     }
                 }
@@ -189,11 +195,6 @@ class LockscreenActivity : ComponentActivity() {
                         artists = emptyList(),
                         duration = 0,
                     )
-
-                val lockscreenPlayerStyle by rememberEnumPreference(
-                    LockscreenPlayerStyleKey,
-                    defaultValue = LockscreenPlayerStyle.CLASSIC,
-                )
 
                 if (lockscreenPlayerStyle == LockscreenPlayerStyle.LIQUID_LYRICS) {
                     val lyricsEntity by remember(conn, metadata.id) {

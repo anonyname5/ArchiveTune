@@ -209,93 +209,108 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                 verticalAlignment = Alignment.Vertical.CenterVertically,
                             ) {
                                 if (hasLyrics && activeLyric != null) {
-                                    // 2nd Previous Lyric Line (deep context, 30% alpha)
-                                    if (prevLyric2 != null) {
-                                        Text(
-                                            text = prevLyric2,
-                                            maxLines = 1,
-                                            style = TextStyle(
-                                                color = ColorProvider(Color(0x55FFFFFF)),
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Normal,
-                                            ),
-                                            modifier = GlanceModifier.padding(horizontal = 6.dp),
-                                        )
-                                        Spacer(GlanceModifier.height(3.dp))
-                                    }
-
-                                    // Previous Lyric Line (context, 52% alpha)
+                                    // Previous Lyric Line (fading context, 38% alpha)
                                     if (prevLyric != null) {
                                         Text(
                                             text = prevLyric,
                                             maxLines = 1,
                                             style = TextStyle(
-                                                color = ColorProvider(Color(0x8AFFFFFF)),
-                                                fontSize = 13.5.sp,
-                                                fontWeight = FontWeight.Medium,
+                                                color = ColorProvider(Color(0x60FFFFFF)),
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Normal,
                                             ),
-                                            modifier = GlanceModifier.padding(horizontal = 6.dp),
+                                            modifier = GlanceModifier.padding(horizontal = 4.dp),
                                         )
-                                        Spacer(GlanceModifier.height(5.dp))
+                                        Spacer(GlanceModifier.height(4.dp))
                                     }
 
-                                    // Active Synchronized Lyric Line (Hero Focus Capsule with Indicator Bar)
-                                    Row(
-                                        modifier = GlanceModifier
-                                            .fillMaxWidth()
-                                            .background(Color(0x38FFFFFF))
-                                            .cornerRadius(12.dp)
-                                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        Box(
-                                            modifier = GlanceModifier
-                                                .width(3.dp)
-                                                .height(18.dp)
-                                                .background(Color.White)
-                                                .cornerRadius(1.5.dp),
-                                        ) {}
-                                        Spacer(GlanceModifier.width(8.dp))
-                                        Text(
-                                            text = activeLyric,
-                                            maxLines = 3,
-                                            style = TextStyle(
-                                                color = textPrimary,
-                                                fontSize = 17.sp,
-                                                fontWeight = FontWeight.Bold,
-                                            ),
-                                            modifier = GlanceModifier.defaultWeight(),
-                                        )
-                                    }
+                                    // Active Synchronized Lyric Line (Hero Luminous Focus, 100% pure white)
+                                    Text(
+                                        text = activeLyric,
+                                        maxLines = 2,
+                                        style = TextStyle(
+                                            color = ColorProvider(Color.White),
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                        ),
+                                        modifier = GlanceModifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                    )
 
-                                    // Next Lyric Line (anticipation, 55% alpha)
+                                    // Next Lyric Line (anticipation, 58% alpha)
                                     if (nextLyric != null) {
-                                        Spacer(GlanceModifier.height(5.dp))
+                                        Spacer(GlanceModifier.height(4.dp))
                                         Text(
                                             text = nextLyric,
                                             maxLines = 1,
                                             style = TextStyle(
-                                                color = ColorProvider(Color(0x8EFFFFFF)),
+                                                color = ColorProvider(Color(0x95FFFFFF)),
                                                 fontSize = 13.5.sp,
                                                 fontWeight = FontWeight.Medium,
                                             ),
-                                            modifier = GlanceModifier.padding(horizontal = 6.dp),
+                                            modifier = GlanceModifier.padding(horizontal = 4.dp),
                                         )
                                     }
 
-                                    // Upcoming 2nd Next Line (deep perspective, 30% alpha)
+                                    // Upcoming 2nd Next Line (deep perspective, 31% alpha)
                                     if (nextLyric2 != null) {
                                         Spacer(GlanceModifier.height(3.dp))
                                         Text(
                                             text = nextLyric2,
                                             maxLines = 1,
                                             style = TextStyle(
-                                                color = ColorProvider(Color(0x55FFFFFF)),
+                                                color = ColorProvider(Color(0x50FFFFFF)),
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Normal,
                                             ),
+                                            modifier = GlanceModifier.padding(horizontal = 4.dp),
+                                        )
+                                    }
+                                } else if (hasLyrics && activeLyric == null && nextLyric != null) {
+                                    // Intro / Instrumental State with Upcoming Line Preview
+                                    Column(
+                                        modifier = GlanceModifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
+                                    ) {
+                                        Row(
+                                            modifier = GlanceModifier
+                                                .background(frostedPillBg)
+                                                .cornerRadius(10.dp)
+                                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                text = "♪  Intro",
+                                                style = TextStyle(
+                                                    color = textSecondary,
+                                                    fontSize = 11.5.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                ),
+                                            )
+                                        }
+                                        Spacer(GlanceModifier.height(8.dp))
+                                        Text(
+                                            text = nextLyric,
+                                            maxLines = 2,
+                                            style = TextStyle(
+                                                color = ColorProvider(Color(0xBBFFFFFF)),
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Medium,
+                                            ),
                                             modifier = GlanceModifier.padding(horizontal = 6.dp),
                                         )
+                                        if (nextLyric2 != null) {
+                                            Spacer(GlanceModifier.height(4.dp))
+                                            Text(
+                                                text = nextLyric2,
+                                                maxLines = 1,
+                                                style = TextStyle(
+                                                    color = ColorProvider(Color(0x55FFFFFF)),
+                                                    fontSize = 11.5.sp,
+                                                    fontWeight = FontWeight.Normal,
+                                                ),
+                                                modifier = GlanceModifier.padding(horizontal = 6.dp),
+                                            )
+                                        }
                                     }
                                 } else {
                                     // Elegant Placeholder when instrumental or lyrics loading

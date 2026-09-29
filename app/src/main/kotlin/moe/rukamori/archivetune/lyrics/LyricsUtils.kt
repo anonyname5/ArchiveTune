@@ -843,6 +843,8 @@ object LyricsUtils {
         if (lines.isEmpty()) return -1
 
         val target = position + leadMs
+        if (target < lines.first().time) return -1
+
         var low = 0
         var high = lines.lastIndex
 
@@ -850,7 +852,7 @@ object LyricsUtils {
             val mid = (low + high).ushr(1)
             val midTime = lines[mid].time
 
-            if (midTime < target) {
+            if (midTime <= target) {
                 low = mid + 1
             } else {
                 high = mid - 1
