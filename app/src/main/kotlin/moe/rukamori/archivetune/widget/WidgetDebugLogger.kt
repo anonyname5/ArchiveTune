@@ -62,6 +62,7 @@ object WidgetDebugLogger {
         AppleLiquidDuoWidgetReceiver::class.java,
         AppleLiquidShelfWidgetReceiver::class.java,
         AppleLiquidNowWidgetReceiver::class.java,
+        AppleLiquidLyricsWidgetReceiver::class.java,
     )
 
     private val removedWidgetClassNames = listOf(

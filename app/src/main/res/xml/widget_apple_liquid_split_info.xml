@@ -6,6 +6,7 @@
     android:targetCellHeight="2"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/glance_default_loading_layout"
+    android:previewImage="@drawable/preview_widget_apple_liquid_split"
     android:resizeMode="horizontal|vertical"
     android:minResizeWidth="220dp"
     android:minResizeHeight="90dp"

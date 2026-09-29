@@ -6,6 +6,7 @@
     android:targetCellHeight="3"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/glance_default_loading_layout"
+    android:previewImage="@drawable/preview_widget_zen_tanzaku"
     android:resizeMode="horizontal|vertical"
     android:minResizeWidth="120dp"
     android:minResizeHeight="120dp"

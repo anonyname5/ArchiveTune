@@ -42,10 +42,16 @@ import kotlinx.coroutines.withContext
 import moe.rukamori.archivetune.R
 import moe.rukamori.archivetune.extensions.SilentHandler
 import moe.rukamori.archivetune.utils.reportException
+import kotlinx.coroutines.flow.firstOrNull
+import moe.rukamori.archivetune.db.entities.LyricsEntity
+import moe.rukamori.archivetune.lyrics.LyricsEntry
+import moe.rukamori.archivetune.lyrics.LyricsUtils
+import moe.rukamori.archivetune.models.MediaMetadata
 import moe.rukamori.archivetune.widget.AppleLiquidCompactWidget
 import moe.rukamori.archivetune.widget.AppleLiquidDuoWidget
 import moe.rukamori.archivetune.widget.AppleLiquidHeroWidget
 import moe.rukamori.archivetune.widget.AppleLiquidIslandWidget
+import moe.rukamori.archivetune.widget.AppleLiquidLyricsWidget
 import moe.rukamori.archivetune.widget.AppleLiquidMiniWidget
 import moe.rukamori.archivetune.widget.AppleLiquidMonoWidget
 import moe.rukamori.archivetune.widget.AppleLiquidNowWidget
@@ -77,6 +83,54 @@ internal class MusicServiceWidgetUpdater(
     private var stateJob: Job? = null
     private var progressJob: Job? = null
     private var isReceiverRegistered = false
+    private var cachedSongId: String? = null
+    private var cachedLyrics: List<LyricsEntry> = emptyList()
+
+    private suspend fun ensureLyrics(mediaMetadata: MediaMetadata?) {
+        if (mediaMetadata == null) {
+            cachedSongId = null
+            cachedLyrics = emptyList()
+            return
+        }
+        if (mediaMetadata.id == cachedSongId) return
+        cachedSongId = mediaMetadata.id
+        cachedLyrics = withContext(Dispatchers.IO) {
+            try {
+                val cached = service.database.lyrics(mediaMetadata.id).firstOrNull()?.lyrics
+                val raw = if (cached != null && cached != LyricsEntity.LYRICS_NOT_FOUND) {
+                    cached
+                } else {
+                    service.lyricsHelper.getLyrics(mediaMetadata)
+                }
+                if (raw != null && raw != LyricsEntity.LYRICS_NOT_FOUND) {
+                    LyricsUtils.parseLyrics(raw)
+                } else {
+                    emptyList()
+                }
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
+    }
+
+    private fun getLyricsForPosition(positionMs: Long): LyricsState {
+        val list = cachedLyrics
+        if (list.isEmpty()) return LyricsState(null, null, null, null, false)
+        val activeIdx = list.indexOfLast { it.time <= positionMs + 400L }
+        val active = if (activeIdx >= 0) list[activeIdx].text else if (list.isNotEmpty()) list.first().text else null
+        val prev = if (activeIdx > 0) list[activeIdx - 1].text else null
+        val next = if (activeIdx >= 0 && activeIdx + 1 < list.size) list[activeIdx + 1].text else null
+        val next2 = if (activeIdx >= 0 && activeIdx + 2 < list.size) list[activeIdx + 2].text else null
+        return LyricsState(active, prev, next, next2, true)
+    }
+
+    private data class LyricsState(
+        val active: String?,
+        val prev: String?,
+        val next: String?,
+        val next2: String?,
+        val hasLyrics: Boolean,
+    )
 
     private val broadcastReceiver =
         object : BroadcastReceiver() {
@@ -194,6 +248,9 @@ internal class MusicServiceWidgetUpdater(
         val meta = mediaItem?.mediaMetadata
         val artFile = meta?.artworkUri?.let { cacheAlbumArt(it) }
         val dominantColor = artFile?.let { extractDominantColor(it) }
+        val currentMeta = service.currentMediaMetadata.value
+        ensureLyrics(currentMeta)
+        val lyricsState = getLyricsForPosition(player.currentPosition)
         val snapshot =
             WidgetSnapshot(
                 title = meta?.title?.toString() ?: service.getString(R.string.no_track_playing),
@@ -207,6 +264,11 @@ internal class MusicServiceWidgetUpdater(
                 artPath = artFile?.absolutePath,
                 dominantColor = dominantColor,
                 insights = WidgetInsightsSnapshot.Empty,
+                activeLyric = lyricsState.active,
+                prevLyric = lyricsState.prev,
+                nextLyric = lyricsState.next,
+                nextLyric2 = lyricsState.next2,
+                hasLyrics = lyricsState.hasLyrics,
             )
 
         installedTargets.forEach { target ->
@@ -220,6 +282,7 @@ internal class MusicServiceWidgetUpdater(
         positionMs: Long,
         durationMs: Long,
     ) {
+        val lyricsState = getLyricsForPosition(positionMs)
         installedTargets.forEach { installedTarget ->
             installedTarget.ids.forEach { id ->
                 updateAppWidgetState(service, PreferencesGlanceStateDefinition, id) { prefs ->
@@ -227,6 +290,15 @@ internal class MusicServiceWidgetUpdater(
                         this[MusicWidgetKeys.PLAYBACK_POSITION] = progress
                         this[MusicWidgetKeys.POSITION_MS] = positionMs
                         this[MusicWidgetKeys.DURATION_MS] = durationMs
+                        if (lyricsState.hasLyrics) {
+                            this[MusicWidgetKeys.HAS_LYRICS] = true
+                            lyricsState.active?.let { this[MusicWidgetKeys.LYRIC_ACTIVE] = it } ?: remove(MusicWidgetKeys.LYRIC_ACTIVE)
+                            lyricsState.prev?.let { this[MusicWidgetKeys.LYRIC_PREV] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV)
+                            lyricsState.next?.let { this[MusicWidgetKeys.LYRIC_NEXT] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT)
+                            lyricsState.next2?.let { this[MusicWidgetKeys.LYRIC_NEXT2] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT2)
+                        } else {
+                            this[MusicWidgetKeys.HAS_LYRICS] = false
+                        }
                     }
                 }
                 installedTarget.target.widget.update(service, id)
@@ -285,6 +357,20 @@ internal class MusicServiceWidgetUpdater(
             this[MusicWidgetKeys.DOMINANT_COLOR] = dominantColor
         } else {
             remove(MusicWidgetKeys.DOMINANT_COLOR)
+        }
+
+        if (snapshot.hasLyrics) {
+            this[MusicWidgetKeys.HAS_LYRICS] = true
+            snapshot.activeLyric?.let { this[MusicWidgetKeys.LYRIC_ACTIVE] = it } ?: remove(MusicWidgetKeys.LYRIC_ACTIVE)
+            snapshot.prevLyric?.let { this[MusicWidgetKeys.LYRIC_PREV] = it } ?: remove(MusicWidgetKeys.LYRIC_PREV)
+            snapshot.nextLyric?.let { this[MusicWidgetKeys.LYRIC_NEXT] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT)
+            snapshot.nextLyric2?.let { this[MusicWidgetKeys.LYRIC_NEXT2] = it } ?: remove(MusicWidgetKeys.LYRIC_NEXT2)
+        } else {
+            this[MusicWidgetKeys.HAS_LYRICS] = false
+            remove(MusicWidgetKeys.LYRIC_ACTIVE)
+            remove(MusicWidgetKeys.LYRIC_PREV)
+            remove(MusicWidgetKeys.LYRIC_NEXT)
+            remove(MusicWidgetKeys.LYRIC_NEXT2)
         }
 
         writeInsights(snapshot.insights)
@@ -412,6 +498,11 @@ internal class MusicServiceWidgetUpdater(
         val artPath: String?,
         val dominantColor: Int?,
         val insights: WidgetInsightsSnapshot,
+        val activeLyric: String? = null,
+        val prevLyric: String? = null,
+        val nextLyric: String? = null,
+        val nextLyric2: String? = null,
+        val hasLyrics: Boolean = false,
     )
 
     private data class WidgetTarget(
@@ -444,6 +535,7 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidDuoWidget::class.java, AppleLiquidDuoWidget()),
                 WidgetTarget(AppleLiquidShelfWidget::class.java, AppleLiquidShelfWidget()),
                 WidgetTarget(AppleLiquidNowWidget::class.java, AppleLiquidNowWidget()),
+                WidgetTarget(AppleLiquidLyricsWidget::class.java, AppleLiquidLyricsWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )
@@ -464,6 +556,7 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidDuoWidget::class.java, AppleLiquidDuoWidget()),
                 WidgetTarget(AppleLiquidShelfWidget::class.java, AppleLiquidShelfWidget()),
                 WidgetTarget(AppleLiquidNowWidget::class.java, AppleLiquidNowWidget()),
+                WidgetTarget(AppleLiquidLyricsWidget::class.java, AppleLiquidLyricsWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )

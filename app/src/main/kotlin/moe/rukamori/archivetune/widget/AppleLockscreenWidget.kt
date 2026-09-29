@@ -118,16 +118,31 @@ private fun AppleLockscreenContent(context: Context) {
             "-0:00"
         }
 
-    // Layer 1: Outer Crystalline Specular Glass Rim (Apple 26dp squircle)
+    // Clearance to accommodate system lockscreen clock above the widget
+    val topClearance = when {
+        size.height >= 170.dp -> 32.dp
+        size.height >= 140.dp -> 22.dp
+        isRibbonMode -> 4.dp
+        else -> 12.dp
+    }
+
     Box(
         modifier =
             GlanceModifier
                 .fillMaxSize()
-                .background(Color(0x65FFFFFF))
-                .cornerRadius(26.dp)
-                .padding(1.2.dp)
-                .clickable(openArchiveTuneAction(context)),
+                .padding(top = topClearance, bottom = 2.dp),
+        contentAlignment = Alignment.BottomCenter,
     ) {
+        // Layer 1: Outer Crystalline Specular Glass Rim (Apple 26dp squircle)
+        Box(
+            modifier =
+                GlanceModifier
+                    .fillMaxSize()
+                    .background(Color(0x65FFFFFF))
+                    .cornerRadius(26.dp)
+                    .padding(1.2.dp)
+                    .clickable(openArchiveTuneAction(context)),
+        ) {
         // Layer 2: Inner Refraction Depth Shadow (3D glass thickness)
         Box(
             modifier =
@@ -660,3 +675,5 @@ private fun AppleLockscreenContent(context: Context) {
         }
     }
 }
+}
+

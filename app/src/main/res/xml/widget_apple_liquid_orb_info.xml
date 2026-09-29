@@ -6,6 +6,7 @@
     android:targetCellHeight="2"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/glance_default_loading_layout"
+    android:previewImage="@drawable/preview_widget_apple_liquid_orb"
     android:resizeMode="horizontal|vertical"
     android:minResizeWidth="110dp"
     android:minResizeHeight="110dp"
