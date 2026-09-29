@@ -313,14 +313,14 @@ private fun AppleLiquidLyricsContent(context: Context) {
                                         Spacer(GlanceModifier.height(2.dp))
                                         Text(
                                             text = if (state.isAvailable) {
-                                                context.getString(R.string.lyrics_not_found)
+                                                if (state.artist.isNotBlank()) state.artist else context.getString(R.string.lyrics)
                                             } else {
                                                 context.getString(R.string.play)
                                             },
                                             maxLines = 1,
                                             style = TextStyle(
                                                 color = textTertiary,
-                                                fontSize = 11.sp,
+                                                fontSize = 11.5.sp,
                                                 fontWeight = FontWeight.Normal,
                                             ),
                                         )
