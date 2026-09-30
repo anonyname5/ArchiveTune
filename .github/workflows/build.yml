@@ -228,23 +228,55 @@ jobs:
           exit 1
 
       - name: Sign APK
-        uses: ilharp/sign-android-release@v2.0.0
-        with:
-          releaseDir: ${{ steps.release_dir.outputs.release_dir }}/
-          signingKey: ${{ secrets.KEYSTORE }}
-          keyAlias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-          buildToolsVersion: 35.0.0
-      
-      - name: Move signed APK
         shell: bash
         run: |
           set -euo pipefail
           RELEASE_DIR="${{ steps.release_dir.outputs.release_dir }}"
           mkdir -p "$RELEASE_DIR/out"
-          SIGNED_APK=$(find "$RELEASE_DIR" -type f \( -name "*-signed.apk" -o -name "*-unsigned-signed.apk" \) | head -n 1)
-          mv "$SIGNED_APK" "$RELEASE_DIR/out/${{ steps.variant.outputs.apk_name }}"
+          TARGET_APK="$RELEASE_DIR/out/${{ steps.variant.outputs.apk_name }}"
+          INPUT_APK=$(find "$RELEASE_DIR" -maxdepth 2 -type f -name "*.apk" ! -path "*/out/*" | head -n 1)
+
+          if [ -z "$INPUT_APK" ]; then
+            echo "No APK found in $RELEASE_DIR"
+            exit 1
+          fi
+
+          KEYSTORE_SECRET="${{ secrets.KEYSTORE }}"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
+
+          if [ -n "$KEYSTORE_SECRET" ]; then
+            echo "Signing with repository secret keystore..."
+            echo "$KEYSTORE_SECRET" | base64 -d > /tmp/release.keystore
+            "$APKSIGNER" sign \
+              --ks /tmp/release.keystore \
+              --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
+              --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
+              --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+              --out "$TARGET_APK" \
+              "$INPUT_APK"
+          else
+            echo "No KEYSTORE secret found. Signing with fallback release key..."
+            if [ ! -f /tmp/fallback.keystore ]; then
+              keytool -genkey -v \
+                -keystore /tmp/fallback.keystore \
+                -alias release \
+                -keyalg RSA \
+                -keysize 2048 \
+                -validity 10000 \
+                -storepass android \
+                -keypass android \
+                -dname "CN=ArchiveTune, O=ArchiveTune, C=US"
+            fi
+            "$APKSIGNER" sign \
+              --ks /tmp/fallback.keystore \
+              --ks-key-alias release \
+              --ks-pass pass:android \
+              --key-pass pass:android \
+              --out "$TARGET_APK" \
+              "$INPUT_APK"
+          fi
+
+          "$APKSIGNER" verify "$TARGET_APK"
   
       - name: Upload Signed APK
         uses: actions/upload-artifact@v7
