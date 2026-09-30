@@ -485,3 +485,4 @@ configurations.configureEach {
         "org.jetbrains.kotlin:kotlin-metadata-jvm:${libs.versions.kotlinMetadata.get()}",
     )
 }
+
