@@ -19,5 +19,6 @@
     <string name="widget_apple_liquid_shelf_description">Apple Liquid Glass 4×4 full-page album showcase with massive artwork canvas and crystalline control shelf</string>
     <string name="widget_apple_liquid_now_description">Apple Liquid Glass 3×2 now playing tag card with artwork box and compact media controls</string>
     <string name="widget_apple_liquid_lyrics_description">Apple Liquid Glass 4×4 live synchronized lyrics stage with dynamic line glow and crystalline control shelf</string>
+    <string name="widget_apple_liquid_lyrics_glass_description">Apple Liquid Glass 4×4 vertical sheet with deep frosted acrylic, hero lyrics stage, and floating crystal dock</string>
     <string name="widget_removed_description">This widget has been removed</string>
 </resources>

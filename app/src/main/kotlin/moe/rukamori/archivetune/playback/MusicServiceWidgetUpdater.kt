@@ -55,6 +55,7 @@ import moe.rukamori.archivetune.widget.AppleLiquidDuoWidget
 import moe.rukamori.archivetune.widget.AppleLiquidHeroWidget
 import moe.rukamori.archivetune.widget.AppleLiquidIslandWidget
 import moe.rukamori.archivetune.widget.AppleLiquidLyricsWidget
+import moe.rukamori.archivetune.widget.AppleLiquidLyricsGlassWidget
 import moe.rukamori.archivetune.widget.AppleLiquidMiniWidget
 import moe.rukamori.archivetune.widget.AppleLiquidMonoWidget
 import moe.rukamori.archivetune.widget.AppleLiquidNowWidget
@@ -175,7 +176,8 @@ internal class MusicServiceWidgetUpdater(
 
     private suspend fun updateLyricsOnWidgets() {
         val targets = findInstalledTargets(listOf(
-            WidgetTarget(AppleLiquidLyricsWidget::class.java, AppleLiquidLyricsWidget())
+            WidgetTarget(AppleLiquidLyricsWidget::class.java, AppleLiquidLyricsWidget()),
+            WidgetTarget(AppleLiquidLyricsGlassWidget::class.java, AppleLiquidLyricsGlassWidget()),
         ))
         if (targets.isEmpty()) return
         val lyricsState = getLyricsForPosition(player.currentPosition.coerceAtLeast(0L))
@@ -644,6 +646,7 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidShelfWidget::class.java, AppleLiquidShelfWidget()),
                 WidgetTarget(AppleLiquidNowWidget::class.java, AppleLiquidNowWidget()),
                 WidgetTarget(AppleLiquidLyricsWidget::class.java, AppleLiquidLyricsWidget()),
+                WidgetTarget(AppleLiquidLyricsGlassWidget::class.java, AppleLiquidLyricsGlassWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )
@@ -665,6 +668,7 @@ internal class MusicServiceWidgetUpdater(
                 WidgetTarget(AppleLiquidShelfWidget::class.java, AppleLiquidShelfWidget()),
                 WidgetTarget(AppleLiquidNowWidget::class.java, AppleLiquidNowWidget()),
                 WidgetTarget(AppleLiquidLyricsWidget::class.java, AppleLiquidLyricsWidget()),
+                WidgetTarget(AppleLiquidLyricsGlassWidget::class.java, AppleLiquidLyricsGlassWidget()),
                 WidgetTarget(PlaybackSpotlightWidget::class.java, PlaybackSpotlightWidget()),
                 WidgetTarget(ZenTanzakuWidget::class.java, ZenTanzakuWidget()),
             )

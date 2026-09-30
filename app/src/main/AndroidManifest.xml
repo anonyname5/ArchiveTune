@@ -490,6 +490,17 @@
                 android:resource="@xml/widget_apple_liquid_lyrics_info" />
         </receiver>
 
+        <receiver
+            android:name=".widget.AppleLiquidLyricsGlassWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_apple_liquid_lyrics_glass_info" />
+        </receiver>
+
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
