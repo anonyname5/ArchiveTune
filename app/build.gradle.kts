@@ -71,8 +71,8 @@ android {
     applicationId = "moe.rukamori.archivetune"
         minSdk = 26
         targetSdk = 37
-        versionCode = 163
-        versionName = "15.0.0-27" // smooth liquid lyrics transition
+        versionCode = 164
+        versionName = "15.0.0-28" // lockscreen sticky card & swipe up to show default lockscreen
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
