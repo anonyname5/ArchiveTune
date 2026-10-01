@@ -241,47 +241,16 @@ jobs:
             exit 1
           fi
 
-          KEYSTORE_SECRET="${{ secrets.KEYSTORE }}"
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
 
-          SIGNED=false
-          if [ -n "$KEYSTORE_SECRET" ]; then
-            echo "Attempting signing with repository secret keystore..."
-            if echo "$KEYSTORE_SECRET" | tr -d '\r\n ' | base64 -d > /tmp/release.keystore 2>/dev/null && [ -s /tmp/release.keystore ]; then
-              if "$APKSIGNER" sign \
-                --ks /tmp/release.keystore \
-                --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
-                --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
-                --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
-                --out "$TARGET_APK" \
-                "$INPUT_APK"; then
-                echo "Signed successfully with repository secret keystore."
-                SIGNED=true
-              fi
-            fi
-          fi
-
-          if [ "$SIGNED" != "true" ]; then
-            echo "Signing with fallback release key..."
-            if [ ! -f /tmp/fallback.keystore ]; then
-              keytool -genkey -v \
-                -keystore /tmp/fallback.keystore \
-                -alias release \
-                -keyalg RSA \
-                -keysize 2048 \
-                -validity 10000 \
-                -storepass android \
-                -keypass android \
-                -dname "CN=ArchiveTune, O=ArchiveTune, C=US"
-            fi
-            "$APKSIGNER" sign \
-              --ks /tmp/fallback.keystore \
-              --ks-key-alias release \
-              --ks-pass pass:android \
-              --key-pass pass:android \
-              --out "$TARGET_APK" \
-              "$INPUT_APK"
-          fi
+          echo "Signing APK using fixed repository keystore..."
+          "$APKSIGNER" sign \
+            --ks app/release.keystore \
+            --ks-key-alias archivetune \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --out "$TARGET_APK" \
+            "$INPUT_APK"
 
           "$APKSIGNER" verify "$TARGET_APK"
   
