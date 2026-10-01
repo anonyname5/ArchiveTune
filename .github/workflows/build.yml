@@ -244,18 +244,25 @@ jobs:
           KEYSTORE_SECRET="${{ secrets.KEYSTORE }}"
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -n 1)
 
+          SIGNED=false
           if [ -n "$KEYSTORE_SECRET" ]; then
-            echo "Signing with repository secret keystore..."
-            echo "$KEYSTORE_SECRET" | base64 -d > /tmp/release.keystore
-            "$APKSIGNER" sign \
-              --ks /tmp/release.keystore \
-              --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
-              --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
-              --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
-              --out "$TARGET_APK" \
-              "$INPUT_APK"
-          else
-            echo "No KEYSTORE secret found. Signing with fallback release key..."
+            echo "Attempting signing with repository secret keystore..."
+            if echo "$KEYSTORE_SECRET" | tr -d '\r\n ' | base64 -d > /tmp/release.keystore 2>/dev/null && [ -s /tmp/release.keystore ]; then
+              if "$APKSIGNER" sign \
+                --ks /tmp/release.keystore \
+                --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
+                --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
+                --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+                --out "$TARGET_APK" \
+                "$INPUT_APK"; then
+                echo "Signed successfully with repository secret keystore."
+                SIGNED=true
+              fi
+            fi
+          fi
+
+          if [ "$SIGNED" != "true" ]; then
+            echo "Signing with fallback release key..."
             if [ ! -f /tmp/fallback.keystore ]; then
               keytool -genkey -v \
                 -keystore /tmp/fallback.keystore \
