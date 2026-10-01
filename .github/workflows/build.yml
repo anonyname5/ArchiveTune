@@ -247,8 +247,8 @@ jobs:
           "$APKSIGNER" sign \
             --ks app/release.keystore \
             --ks-key-alias archivetune \
-            --ks-pass pass:android \
-            --key-pass pass:android \
+            --ks-pass pass:archivetune123 \
+            --key-pass pass:archivetune123 \
             --out "$TARGET_APK" \
             "$INPUT_APK"
 
