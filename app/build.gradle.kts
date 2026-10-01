@@ -71,7 +71,7 @@ android {
     applicationId = "moe.rukamori.archivetune"
         minSdk = 26
         targetSdk = 37
-        versionCode = 159
+        versionCode = 160
         versionName = "15.0.0-24"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
