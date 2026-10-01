@@ -210,7 +210,7 @@ private fun AppleLiquidLyricsGlassContent(context: Context) {
             Spacer(GlanceModifier.height(10.dp))
 
             // ─────────────────────────────────────────────────────────────
-            // CENTER: FLOATING LIQUID LYRICS STAGE
+            // CENTER: FLOATING LIQUID LYRICS STAGE (Modeled after in-app Lyrics.kt)
             // ─────────────────────────────────────────────────────────────
             Column(
                 modifier = GlanceModifier
@@ -220,68 +220,95 @@ private fun AppleLiquidLyricsGlassContent(context: Context) {
                 horizontalAlignment = Alignment.Horizontal.Start,
             ) {
                 if (hasLyrics && activeLyric != null) {
-                    // Context lyric before (faded optical perspective)
-                    if (prevLyric != null) {
-                        Text(
-                            text = prevLyric,
-                            maxLines = 1,
-                            style = TextStyle(
-                                color = textMuted,
-                                fontSize = 12.5.sp,
-                                fontWeight = FontWeight.Normal,
-                            ),
-                            modifier = GlanceModifier.padding(horizontal = 8.dp),
-                        )
-                        Spacer(GlanceModifier.height(6.dp))
-                    }
-
-                    // HERO ACTIVE LYRIC (Liquid Glass Drop Highlight)
+                    // 1. Previous Line: Inactive / Faded Ambient Trail (matching in-app inactiveAlpha = 0.35f)
                     Box(
                         modifier = GlanceModifier
                             .fillMaxWidth()
+                            .height(18.dp),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (prevLyric != null) {
+                            Text(
+                                text = prevLyric,
+                                maxLines = 1,
+                                style = TextStyle(
+                                    color = ColorProvider(Color(0x5AFFFFFF)),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                ),
+                                modifier = GlanceModifier.padding(horizontal = 8.dp),
+                            )
+                        }
+                    }
+
+                    Spacer(GlanceModifier.height(5.dp))
+
+                    // 2. HERO ACTIVE LYRIC: Stable Anchored Liquid Lens (matches in-app isActive = true, bold luminous)
+                    Box(
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .height(54.dp)
                             .background(ImageProvider(R.drawable.widget_apple_liquid_hero_lyric_bg))
-                            .cornerRadius(14.dp)
-                            .padding(horizontal = 10.dp, vertical = 7.dp),
+                            .cornerRadius(16.dp)
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.CenterStart,
                     ) {
                         Text(
                             text = activeLyric,
                             maxLines = 2,
                             style = TextStyle(
-                                color = textPrimary,
-                                fontSize = 18.sp,
+                                color = ColorProvider(Color.White),
+                                fontSize = 17.5.sp,
                                 fontWeight = FontWeight.Bold,
                             ),
+                            modifier = GlanceModifier.fillMaxWidth(),
                         )
                     }
 
-                    // Next Line (Anticipation)
-                    if (nextLyric != null) {
-                        Spacer(GlanceModifier.height(6.dp))
-                        Text(
-                            text = nextLyric,
-                            maxLines = 1,
-                            style = TextStyle(
-                                color = textTertiary,
-                                fontSize = 13.5.sp,
-                                fontWeight = FontWeight.Medium,
-                            ),
-                            modifier = GlanceModifier.padding(horizontal = 8.dp),
-                        )
+                    Spacer(GlanceModifier.height(5.dp))
+
+                    // 3. Next Line: Anticipatory Shimmer (matching in-app isHighlighted = 0.60f)
+                    Box(
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .height(20.dp),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (nextLyric != null) {
+                            Text(
+                                text = nextLyric,
+                                maxLines = 1,
+                                style = TextStyle(
+                                    color = ColorProvider(Color(0xA0FFFFFF)),
+                                    fontSize = 13.5.sp,
+                                    fontWeight = FontWeight.Medium,
+                                ),
+                                modifier = GlanceModifier.padding(horizontal = 8.dp),
+                            )
+                        }
                     }
 
-                    // Subsequent Line (Soft tail)
-                    if (nextLyric2 != null) {
-                        Spacer(GlanceModifier.height(4.dp))
-                        Text(
-                            text = nextLyric2,
-                            maxLines = 1,
-                            style = TextStyle(
-                                color = textMuted,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Normal,
-                            ),
-                            modifier = GlanceModifier.padding(horizontal = 8.dp),
-                        )
+                    Spacer(GlanceModifier.height(3.dp))
+
+                    // 4. Subsequent Line: Soft Outgoing Tail (matching in-app bottom fadingEdge)
+                    Box(
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .height(16.dp),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (nextLyric2 != null) {
+                            Text(
+                                text = nextLyric2,
+                                maxLines = 1,
+                                style = TextStyle(
+                                    color = ColorProvider(Color(0x40FFFFFF)),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Normal,
+                                ),
+                                modifier = GlanceModifier.padding(horizontal = 8.dp),
+                            )
+                        }
                     }
                 } else if (hasLyrics && activeLyric == null && nextLyric != null) {
                     // Intro State
