@@ -240,26 +240,12 @@ class LockscreenActivity : ComponentActivity() {
     }
 
     private fun dismissLockscreen() {
-        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            keyguardManager?.requestDismissKeyguard(
-                this,
-                object : KeyguardManager.KeyguardDismissCallback() {
-                    override fun onDismissSucceeded() {
-                        finish()
-                    }
-
-                    override fun onDismissCancelled() {
-                        // User cancelled unlock dialog, keep player active
-                    }
-
-                    override fun onDismissError() {
-                        finish()
-                    }
-                },
-            )
+        finish()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, android.R.anim.fade_out)
         } else {
-            finish()
+            @Suppress("DEPRECATION")
+            overridePendingTransition(0, android.R.anim.fade_out)
         }
     }
 

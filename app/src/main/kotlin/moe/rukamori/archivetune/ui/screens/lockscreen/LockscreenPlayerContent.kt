@@ -188,7 +188,7 @@ fun LockscreenPlayerContent(
         label = "auraAlpha",
     )
 
-    // Root Container: Translucent with Click-Outside to Dismiss
+    // Root Container: Translucent with Click-Outside or Swipe-Up to Dismiss
     Box(
         modifier =
             modifier
@@ -196,6 +196,23 @@ fun LockscreenPlayerContent(
                 .background(Color(0x35000000)) // Soft subtle scrim over real lockscreen
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .pointerInput(Unit) {
+                    var accumulatedDragY = 0f
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { _, dragAmount ->
+                            accumulatedDragY += dragAmount
+                        },
+                        onDragEnd = {
+                            if (accumulatedDragY < -40f) {
+                                onDismiss()
+                            }
+                            accumulatedDragY = 0f
+                        },
+                        onDragCancel = {
+                            accumulatedDragY = 0f
+                        },
+                    )
+                }
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -203,48 +220,12 @@ fun LockscreenPlayerContent(
                 ),
         contentAlignment = Alignment.Center,
     ) {
-        // Floating Card Container (offsets smoothly when swiped)
+        // Sticky Center Liquid Glass Card Container
         Box(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp)
-                    .offset { IntOffset(0, dismissOffsetY.value.roundToInt()) }
-                    .pointerInput(Unit) {
-                        detectVerticalDragGestures(
-                            onVerticalDrag = { _, dragAmount ->
-                                totalDragY += dragAmount
-                                scope.launch {
-                                    dismissOffsetY.snapTo(totalDragY)
-                                }
-                            },
-                            onDragEnd = {
-                                if (abs(totalDragY) > 120f) {
-                                    scope.launch {
-                                        dismissOffsetY.animateTo(
-                                            targetValue = if (totalDragY < 0) -1000f else 1000f,
-                                            animationSpec = tween(200, easing = FastOutSlowInEasing),
-                                        )
-                                        onDismiss()
-                                    }
-                                } else {
-                                    scope.launch {
-                                        dismissOffsetY.animateTo(
-                                            targetValue = 0f,
-                                            animationSpec = tween(220, easing = FastOutSlowInEasing),
-                                        )
-                                        totalDragY = 0f
-                                    }
-                                }
-                            },
-                            onDragCancel = {
-                                scope.launch {
-                                    dismissOffsetY.animateTo(0f)
-                                    totalDragY = 0f
-                                }
-                            },
-                        )
-                    }
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
