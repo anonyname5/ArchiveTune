@@ -330,22 +330,18 @@ private fun AppleLiquidLyricsGlassContent(context: Context) {
             Spacer(GlanceModifier.height(8.dp))
 
             // ─────────────────────────────────────────────────────────────
-            // BOTTOM: FLOATING LIQUID DOCK CAPSULE (Scrubber & Controls)
+            // BOTTOM: PURE APPLE MINIMALIST FLOATING CONTROLS & SCRUBBER
             // ─────────────────────────────────────────────────────────────
-            Box(
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .background(ImageProvider(R.drawable.widget_apple_liquid_capsule_bg))
-                    .cornerRadius(22.dp)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+            Column(
+                modifier = GlanceModifier.fillMaxWidth(),
             ) {
-                Column(modifier = GlanceModifier.fillMaxWidth()) {
-                    // Scrubber Bar
+                // Floating Hairline Scrubber
+                Column(modifier = GlanceModifier.fillMaxWidth().padding(horizontal = 4.dp)) {
                     LinearProgressIndicator(
                         progress = if (state.isAvailable) state.playbackPosition else 0f,
                         modifier = GlanceModifier
                             .fillMaxWidth()
-                            .height(3.dp)
+                            .height(2.5.dp)
                             .cornerRadius(1.5.dp),
                         color = scrubberFill,
                         backgroundColor = scrubberTrack,
@@ -356,103 +352,84 @@ private fun AppleLiquidLyricsGlassContent(context: Context) {
                     Row(modifier = GlanceModifier.fillMaxWidth()) {
                         Text(
                             text = elapsedStr,
-                            style = TextStyle(color = textTertiary, fontSize = 8.sp),
+                            style = TextStyle(color = textTertiary, fontSize = 9.sp),
                         )
                         Spacer(GlanceModifier.defaultWeight())
                         Text(
                             text = remainingStr,
-                            style = TextStyle(color = textTertiary, fontSize = 8.sp),
+                            style = TextStyle(color = textTertiary, fontSize = 9.sp),
+                        )
+                    }
+                }
+
+                Spacer(GlanceModifier.height(6.dp))
+
+                // Floating Centered Control Trio (Previous, Liquid Bead Play/Pause, Next)
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // Skip Previous
+                    Box(
+                        modifier = GlanceModifier
+                            .size(38.dp)
+                            .clickable(skipPreviousAction()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_apple_backward),
+                            contentDescription = "Previous",
+                            colorFilter = ColorFilter.tint(textPrimary),
+                            modifier = GlanceModifier.size(22.dp),
                         )
                     }
 
-                    Spacer(GlanceModifier.height(4.dp))
+                    Spacer(GlanceModifier.width(28.dp))
 
-                    // Control buttons
-                    Row(
-                        modifier = GlanceModifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
+                    // Play/Pause Liquid Glass Bead (Apple glossy lens button)
+                    Box(
+                        modifier = GlanceModifier
+                            .size(46.dp)
+                            .background(Color(0x80FFFFFF))
+                            .cornerRadius(23.dp)
+                            .padding(1.dp)
+                            .clickable(playPauseAction()),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Box(
-                            modifier = GlanceModifier.size(28.dp).clickable(volumeDownAction()),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Image(
-                                provider = ImageProvider(R.drawable.ic_apple_volume_min),
-                                contentDescription = "Volume Down",
-                                colorFilter = ColorFilter.tint(textSecondary),
-                                modifier = GlanceModifier.size(13.5.dp),
-                            )
-                        }
-
-                        Spacer(GlanceModifier.defaultWeight())
-
-                        Box(
-                            modifier = GlanceModifier.size(32.dp).clickable(skipPreviousAction()),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Image(
-                                provider = ImageProvider(R.drawable.ic_apple_backward),
-                                contentDescription = "Previous",
-                                colorFilter = ColorFilter.tint(textPrimary),
-                            )
-                        }
-
-                        Spacer(GlanceModifier.width(12.dp))
-
-                        // Play/Pause Liquid Lens Button
-                        Box(
                             modifier = GlanceModifier
-                                .size(40.dp)
-                                .background(Color(0x80FFFFFF))
-                                .cornerRadius(20.dp)
-                                .padding(1.dp)
-                                .clickable(playPauseAction()),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Box(
-                                modifier = GlanceModifier
-                                    .fillMaxSize()
-                                    .background(playLensBg)
-                                    .cornerRadius(19.dp),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Image(
-                                    provider = ImageProvider(
-                                        if (state.isPlaying) R.drawable.ic_apple_pause else R.drawable.ic_apple_play,
-                                    ),
-                                    contentDescription = if (state.isPlaying) "Pause" else "Play",
-                                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
-                                    modifier = GlanceModifier.size(19.dp),
-                                )
-                            }
-                        }
-
-                        Spacer(GlanceModifier.width(12.dp))
-
-                        Box(
-                            modifier = GlanceModifier.size(32.dp).clickable(skipNextAction()),
+                                .fillMaxSize()
+                                .background(playLensBg)
+                                .cornerRadius(22.dp),
                             contentAlignment = Alignment.Center,
                         ) {
                             Image(
-                                provider = ImageProvider(R.drawable.ic_apple_forward),
-                                contentDescription = "Next",
-                                colorFilter = ColorFilter.tint(textPrimary),
+                                provider = ImageProvider(
+                                    if (state.isPlaying) R.drawable.ic_apple_pause else R.drawable.ic_apple_play,
+                                ),
+                                contentDescription = if (state.isPlaying) "Pause" else "Play",
+                                colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                modifier = GlanceModifier.size(20.dp),
                             )
                         }
+                    }
 
-                        Spacer(GlanceModifier.defaultWeight())
+                    Spacer(GlanceModifier.width(28.dp))
 
-                        Box(
-                            modifier = GlanceModifier.size(28.dp).clickable(volumeUpAction()),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Image(
-                                provider = ImageProvider(R.drawable.ic_apple_volume_max),
-                                contentDescription = "Volume Up",
-                                colorFilter = ColorFilter.tint(textSecondary),
-                                modifier = GlanceModifier.size(13.5.dp),
-                            )
-                        }
+                    // Skip Next
+                    Box(
+                        modifier = GlanceModifier
+                            .size(38.dp)
+                            .clickable(skipNextAction()),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Image(
+                            provider = ImageProvider(R.drawable.ic_apple_forward),
+                            contentDescription = "Next",
+                            colorFilter = ColorFilter.tint(textPrimary),
+                            modifier = GlanceModifier.size(22.dp),
+                        )
                     }
                 }
             }
