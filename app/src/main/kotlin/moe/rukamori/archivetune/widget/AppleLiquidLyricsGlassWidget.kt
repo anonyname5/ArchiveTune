@@ -45,6 +45,11 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import moe.rukamori.archivetune.R
 
+/**
+ * AppleLiquidLyricsGlassWidget
+ * True Apple Liquid Glass with wet specular curved glare, fluid color caustics,
+ * clean seamless floating typography, and crystalline dock controls.
+ */
 class AppleLiquidLyricsGlassWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
     override val sizeMode = SizeMode.Exact
@@ -73,29 +78,26 @@ private fun AppleLiquidLyricsGlassContent(context: Context) {
 
     val dominant = state.dominantColor?.let { Color(it) }
 
-    val glassBaseDark = Color(0x680E111A)
-    val liquidAuraColor = remember(dominant) { dominant?.copy(alpha = 0.28f) ?: Color.Transparent }
-    val liquidLensBg = remember(dominant) {
-        dominant?.let {
-            val r = (it.red * 0.45f + 1f * 0.55f).coerceIn(0f, 1f)
-            val g = (it.green * 0.45f + 1f * 0.55f).coerceIn(0f, 1f)
-            val b = (it.blue * 0.45f + 1f * 0.55f).coerceIn(0f, 1f)
-            Color(red = r, green = g, blue = b, alpha = 0.45f)
-        } ?: Color(0x40FFFFFF)
+    // Dynamic Liquid Dye Color: Infuses fluid album color into the glass sheet
+    val liquidDyeColor = remember(dominant) {
+        dominant?.copy(alpha = 0.35f) ?: Color.Transparent
     }
 
-    val frostedPillBg = Color(0x28FFFFFF)
-    val activePillBg = remember(dominant) {
+    // Lens button liquid accent
+    val playLensBg = remember(dominant) {
         dominant?.let {
-            Color(red = it.red, green = it.green, blue = it.blue, alpha = 0.24f)
-        } ?: Color(0x30FFFFFF)
+            val r = (it.red * 0.5f + 1f * 0.5f).coerceIn(0f, 1f)
+            val g = (it.green * 0.5f + 1f * 0.5f).coerceIn(0f, 1f)
+            val b = (it.blue * 0.5f + 1f * 0.5f).coerceIn(0f, 1f)
+            Color(red = r, green = g, blue = b, alpha = 0.55f)
+        } ?: Color(0x55FFFFFF)
     }
 
     val textPrimary = ColorProvider(Color.White)
-    val textSecondary = ColorProvider(Color(0xD5FFFFFF))
+    val textSecondary = ColorProvider(Color(0xE0FFFFFF))
     val textTertiary = ColorProvider(Color(0x95FFFFFF))
-    val textMuted = ColorProvider(Color(0x55FFFFFF))
-    val scrubberTrack = ColorProvider(Color(0x25FFFFFF))
+    val textMuted = ColorProvider(Color(0x50FFFFFF))
+    val scrubberTrack = ColorProvider(Color(0x28FFFFFF))
     val scrubberFill = ColorProvider(Color.White)
 
     val elapsedSec = if (state.durationMs > 0L) (state.positionMs / 1000L).toInt() else 0
@@ -104,404 +106,352 @@ private fun AppleLiquidLyricsGlassContent(context: Context) {
     val elapsedStr = if (state.isAvailable && state.durationMs > 0L) "${elapsedSec / 60}:${(elapsedSec % 60).toString().padStart(2, '0')}" else "0:00"
     val remainingStr = if (state.isAvailable && totalSec > 0) "-${remainingSec / 60}:${(remainingSec % 60).toString().padStart(2, '0')}" else "-0:00"
 
-    // Outer Specular Crystalline Glass Rim
+    // MAIN LIQUID GLASS SHEET (Drawable with specular top glare & optical perimeter rim)
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(Color(0x70FFFFFF))
+            .background(ImageProvider(R.drawable.widget_apple_liquid_glass_main_bg))
             .cornerRadius(30.dp)
-            .padding(1.2.dp)
             .clickable(openArchiveTuneAction(context)),
     ) {
-        // Inner Refraction Shadow / Optical Scrim
-        Box(
-            modifier = GlanceModifier
-                .fillMaxSize()
-                .background(Color(0x28000000))
-                .cornerRadius(29.dp)
-                .padding(0.8.dp),
-        ) {
-            // Smoked Acrylic Deep Base
+        // Fluid album art dye layer (bleeds through the liquid glass)
+        if (state.dominantColor != null) {
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize()
-                    .background(glassBaseDark)
+                    .background(liquidDyeColor)
                     .cornerRadius(28.dp),
+            ) {}
+        }
+
+        // Internal Content Layout
+        Column(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .padding(14.dp),
+        ) {
+            // ─────────────────────────────────────────────────────────────
+            // TOP BAR: Floating Glass Header (Artwork + Track info + Glass Pill)
+            // ─────────────────────────────────────────────────────────────
+            Row(
+                modifier = GlanceModifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Dynamic Liquid Aura Layer
-                if (state.dominantColor != null) {
-                    Box(
+                // Glossy Artwork Squircle
+                Box(
+                    modifier = GlanceModifier
+                        .size(42.dp)
+                        .background(Color(0x70FFFFFF))
+                        .cornerRadius(12.dp)
+                        .padding(1.dp),
+                ) {
+                    WidgetAlbumArt(
+                        artPath = prefs[MusicWidgetKeys.ART_PATH],
                         modifier = GlanceModifier
                             .fillMaxSize()
-                            .background(liquidAuraColor)
-                            .cornerRadius(28.dp),
-                    ) {}
+                            .cornerRadius(11.dp),
+                        contentDescription = state.title,
+                        targetSize = 42.dp,
+                    )
                 }
 
-                // Vertical Glass Sheet Content
-                Column(
+                Spacer(GlanceModifier.width(10.dp))
+
+                Column(modifier = GlanceModifier.defaultWeight()) {
+                    Text(
+                        text = if (state.isAvailable) state.title else context.getString(R.string.app_name),
+                        maxLines = 1,
+                        style = TextStyle(
+                            color = textPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                    )
+                    Spacer(GlanceModifier.height(1.dp))
+                    Text(
+                        text = if (state.isAvailable) state.artist else context.getString(R.string.no_track_playing),
+                        maxLines = 1,
+                        style = TextStyle(
+                            color = textSecondary,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Normal,
+                        ),
+                    )
+                }
+
+                Spacer(GlanceModifier.width(8.dp))
+
+                // Sleek Liquid Glass Pill
+                Row(
                     modifier = GlanceModifier
-                        .fillMaxSize()
-                        .padding(14.dp),
+                        .background(ImageProvider(R.drawable.widget_apple_liquid_capsule_bg))
+                        .cornerRadius(12.dp)
+                        .padding(horizontal = 9.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    // ─────────────────────────────────────────────────────────────
-                    // TOP: HEADER CAPSULE (Album Art, Track Info, & Synced Status)
-                    // ─────────────────────────────────────────────────────────────
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_apple_airplay),
+                        contentDescription = "AirPlay",
+                        colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF38A3FF))),
+                        modifier = GlanceModifier.size(10.5.dp),
+                    )
+                    Spacer(GlanceModifier.width(4.dp))
+                    Text(
+                        text = if (hasLyrics) "LYRICS" else "AUDIO",
+                        style = TextStyle(
+                            color = textPrimary,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                    )
+                }
+            }
+
+            Spacer(GlanceModifier.height(10.dp))
+
+            // ─────────────────────────────────────────────────────────────
+            // CENTER: FLOATING LIQUID LYRICS STAGE
+            // ─────────────────────────────────────────────────────────────
+            Column(
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .defaultWeight(),
+                verticalAlignment = Alignment.Vertical.CenterVertically,
+                horizontalAlignment = Alignment.Horizontal.Start,
+            ) {
+                if (hasLyrics && activeLyric != null) {
+                    // Context lyric before (faded optical perspective)
+                    if (prevLyric != null) {
+                        Text(
+                            text = prevLyric,
+                            maxLines = 1,
+                            style = TextStyle(
+                                color = textMuted,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Normal,
+                            ),
+                            modifier = GlanceModifier.padding(horizontal = 8.dp),
+                        )
+                        Spacer(GlanceModifier.height(6.dp))
+                    }
+
+                    // HERO ACTIVE LYRIC (Liquid Glass Drop Highlight)
+                    Box(
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .background(ImageProvider(R.drawable.widget_apple_liquid_hero_lyric_bg))
+                            .cornerRadius(14.dp)
+                            .padding(horizontal = 10.dp, vertical = 7.dp),
+                    ) {
+                        Text(
+                            text = activeLyric,
+                            maxLines = 2,
+                            style = TextStyle(
+                                color = textPrimary,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        )
+                    }
+
+                    // Next Line (Anticipation)
+                    if (nextLyric != null) {
+                        Spacer(GlanceModifier.height(6.dp))
+                        Text(
+                            text = nextLyric,
+                            maxLines = 1,
+                            style = TextStyle(
+                                color = textTertiary,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.Medium,
+                            ),
+                            modifier = GlanceModifier.padding(horizontal = 8.dp),
+                        )
+                    }
+
+                    // Subsequent Line (Soft tail)
+                    if (nextLyric2 != null) {
+                        Spacer(GlanceModifier.height(4.dp))
+                        Text(
+                            text = nextLyric2,
+                            maxLines = 1,
+                            style = TextStyle(
+                                color = textMuted,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal,
+                            ),
+                            modifier = GlanceModifier.padding(horizontal = 8.dp),
+                        )
+                    }
+                } else if (hasLyrics && activeLyric == null && nextLyric != null) {
+                    // Intro State
+                    Column(
+                        modifier = GlanceModifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = "♪  Intro",
+                            style = TextStyle(
+                                color = textTertiary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        )
+                        Spacer(GlanceModifier.height(6.dp))
+                        Text(
+                            text = nextLyric,
+                            maxLines = 2,
+                            style = TextStyle(
+                                color = textPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                            ),
+                            modifier = GlanceModifier.padding(horizontal = 10.dp),
+                        )
+                    }
+                } else {
+                    // Idle / Instrumental
+                    Column(
+                        modifier = GlanceModifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = "♪  " + if (state.isAvailable) "Instrumental" else "ArchiveTune",
+                            style = TextStyle(
+                                color = textTertiary,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                            ),
+                        )
+                    }
+                }
+            }
+
+            Spacer(GlanceModifier.height(8.dp))
+
+            // ─────────────────────────────────────────────────────────────
+            // BOTTOM: FLOATING LIQUID DOCK CAPSULE (Scrubber & Controls)
+            // ─────────────────────────────────────────────────────────────
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .background(ImageProvider(R.drawable.widget_apple_liquid_capsule_bg))
+                    .cornerRadius(22.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+            ) {
+                Column(modifier = GlanceModifier.fillMaxWidth()) {
+                    // Scrubber Bar
+                    LinearProgressIndicator(
+                        progress = if (state.isAvailable) state.playbackPosition else 0f,
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .cornerRadius(1.5.dp),
+                        color = scrubberFill,
+                        backgroundColor = scrubberTrack,
+                    )
+
+                    Spacer(GlanceModifier.height(2.dp))
+
+                    Row(modifier = GlanceModifier.fillMaxWidth()) {
+                        Text(
+                            text = elapsedStr,
+                            style = TextStyle(color = textTertiary, fontSize = 8.sp),
+                        )
+                        Spacer(GlanceModifier.defaultWeight())
+                        Text(
+                            text = remainingStr,
+                            style = TextStyle(color = textTertiary, fontSize = 8.sp),
+                        )
+                    }
+
+                    Spacer(GlanceModifier.height(4.dp))
+
+                    // Control buttons
                     Row(
                         modifier = GlanceModifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        // Album Artwork Squircle (38dp x 38dp) with glowing specular rim
                         Box(
-                            modifier = GlanceModifier
-                                .size(38.dp)
-                                .background(Color(0x60FFFFFF))
-                                .cornerRadius(11.dp)
-                                .padding(0.8.dp),
-                        ) {
-                            WidgetAlbumArt(
-                                artPath = prefs[MusicWidgetKeys.ART_PATH],
-                                modifier = GlanceModifier
-                                    .fillMaxSize()
-                                    .cornerRadius(10.2.dp),
-                                contentDescription = state.title,
-                                targetSize = 38.dp,
-                            )
-                        }
-
-                        Spacer(GlanceModifier.width(10.dp))
-
-                        // Song Title & Artist
-                        Column(modifier = GlanceModifier.defaultWeight()) {
-                            Text(
-                                text = if (state.isAvailable) state.title else context.getString(R.string.app_name),
-                                maxLines = 1,
-                                style = TextStyle(
-                                    color = textPrimary,
-                                    fontSize = 13.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                ),
-                            )
-                            Spacer(GlanceModifier.height(1.dp))
-                            Text(
-                                text = if (state.isAvailable) state.artist else context.getString(R.string.no_track_playing),
-                                maxLines = 1,
-                                style = TextStyle(
-                                    color = textSecondary,
-                                    fontSize = 10.5.sp,
-                                    fontWeight = FontWeight.Normal,
-                                ),
-                            )
-                        }
-
-                        Spacer(GlanceModifier.width(8.dp))
-
-                        // Synced Status / AirPlay Pill
-                        Row(
-                            modifier = GlanceModifier
-                                .background(frostedPillBg)
-                                .cornerRadius(10.dp)
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = GlanceModifier.size(28.dp).clickable(volumeDownAction()),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Image(
-                                provider = ImageProvider(R.drawable.ic_apple_airplay),
-                                contentDescription = "AirPlay",
-                                colorFilter = ColorFilter.tint(ColorProvider(Color(0xFF38A3FF))),
-                                modifier = GlanceModifier.size(10.dp),
-                            )
-                            Spacer(GlanceModifier.width(4.dp))
-                            Text(
-                                text = if (hasLyrics) "SYNCED" else "APPLE GLASS",
-                                style = TextStyle(
-                                    color = textPrimary,
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                ),
+                                provider = ImageProvider(R.drawable.ic_apple_volume_min),
+                                contentDescription = "Volume Down",
+                                colorFilter = ColorFilter.tint(textSecondary),
+                                modifier = GlanceModifier.size(13.5.dp),
                             )
                         }
-                    }
 
-                    Spacer(GlanceModifier.height(8.dp))
+                        Spacer(GlanceModifier.defaultWeight())
 
-                    // ─────────────────────────────────────────────────────────────
-                    // CENTER: HERO LYRICS CHAMBER (Seamless Vertical Flow)
-                    // ─────────────────────────────────────────────────────────────
-                    Column(
-                        modifier = GlanceModifier
-                            .fillMaxWidth()
-                            .defaultWeight(),
-                        verticalAlignment = Alignment.Vertical.CenterVertically,
-                        horizontalAlignment = Alignment.Horizontal.Start,
-                    ) {
-                        if (hasLyrics && activeLyric != null) {
-                            // Previous line (fading context)
-                            if (prevLyric != null) {
-                                Text(
-                                    text = prevLyric,
-                                    maxLines = 1,
-                                    style = TextStyle(
-                                        color = textMuted,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Normal,
-                                    ),
-                                    modifier = GlanceModifier.padding(horizontal = 6.dp),
-                                )
-                                Spacer(GlanceModifier.height(6.dp))
-                            }
-
-                            // Active Hero Lyric Line (Encased in luminous frosted glass highlight)
-                            Box(
-                                modifier = GlanceModifier
-                                    .fillMaxWidth()
-                                    .background(Color(0x35FFFFFF))
-                                    .cornerRadius(14.dp)
-                                    .padding(1.dp),
-                            ) {
-                                Box(
-                                    modifier = GlanceModifier
-                                        .fillMaxWidth()
-                                        .background(activePillBg)
-                                        .cornerRadius(13.dp)
-                                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                                ) {
-                                    Text(
-                                        text = activeLyric,
-                                        maxLines = 2,
-                                        style = TextStyle(
-                                            color = textPrimary,
-                                            fontSize = 17.5.sp,
-                                            fontWeight = FontWeight.Bold,
-                                        ),
-                                    )
-                                }
-                            }
-
-                            // Next line (anticipation)
-                            if (nextLyric != null) {
-                                Spacer(GlanceModifier.height(6.dp))
-                                Text(
-                                    text = nextLyric,
-                                    maxLines = 1,
-                                    style = TextStyle(
-                                        color = textTertiary,
-                                        fontSize = 13.5.sp,
-                                        fontWeight = FontWeight.Medium,
-                                    ),
-                                    modifier = GlanceModifier.padding(horizontal = 6.dp),
-                                )
-                            }
-
-                            // Upcoming 2nd Next Line (perspective depth)
-                            if (nextLyric2 != null) {
-                                Spacer(GlanceModifier.height(4.dp))
-                                Text(
-                                    text = nextLyric2,
-                                    maxLines = 1,
-                                    style = TextStyle(
-                                        color = textMuted,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Normal,
-                                    ),
-                                    modifier = GlanceModifier.padding(horizontal = 6.dp),
-                                )
-                            }
-                        } else if (hasLyrics && activeLyric == null && nextLyric != null) {
-                            // Intro / Instrumental State with Upcoming Line Preview
-                            Column(
-                                modifier = GlanceModifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                            ) {
-                                Row(
-                                    modifier = GlanceModifier
-                                        .background(frostedPillBg)
-                                        .cornerRadius(10.dp)
-                                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = "♪  Intro",
-                                        style = TextStyle(
-                                            color = textSecondary,
-                                            fontSize = 11.5.sp,
-                                            fontWeight = FontWeight.Bold,
-                                        ),
-                                    )
-                                }
-                                Spacer(GlanceModifier.height(8.dp))
-                                Text(
-                                    text = nextLyric,
-                                    maxLines = 2,
-                                    style = TextStyle(
-                                        color = ColorProvider(Color(0xCCFFFFFF)),
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Medium,
-                                    ),
-                                    modifier = GlanceModifier.padding(horizontal = 8.dp),
-                                )
-                            }
-                        } else {
-                            // No lyrics available state
-                            Column(
-                                modifier = GlanceModifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
-                            ) {
-                                Row(
-                                    modifier = GlanceModifier
-                                        .background(frostedPillBg)
-                                        .cornerRadius(12.dp)
-                                        .padding(horizontal = 14.dp, vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = "♪  " + if (state.isAvailable) "Instrumental / No Lyrics" else "ArchiveTune Ready",
-                                        style = TextStyle(
-                                            color = textSecondary,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Medium,
-                                        ),
-                                    )
-                                }
-                            }
+                        Box(
+                            modifier = GlanceModifier.size(32.dp).clickable(skipPreviousAction()),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                provider = ImageProvider(R.drawable.ic_apple_backward),
+                                contentDescription = "Previous",
+                                colorFilter = ColorFilter.tint(textPrimary),
+                            )
                         }
-                    }
 
-                    Spacer(GlanceModifier.height(6.dp))
+                        Spacer(GlanceModifier.width(12.dp))
 
-                    // ─────────────────────────────────────────────────────────────
-                    // BOTTOM: FLOATING CRYSTAL DOCK (Scrubber & Playback Controls)
-                    // ─────────────────────────────────────────────────────────────
-                    Box(
-                        modifier = GlanceModifier
-                            .fillMaxWidth()
-                            .background(Color(0x40FFFFFF))
-                            .cornerRadius(20.dp)
-                            .padding(0.8.dp),
-                    ) {
+                        // Play/Pause Liquid Lens Button
                         Box(
                             modifier = GlanceModifier
-                                .fillMaxWidth()
-                                .background(Color(0x9510131E))
-                                .cornerRadius(19.2.dp)
-                                .padding(horizontal = 10.dp, vertical = 7.dp),
+                                .size(40.dp)
+                                .background(Color(0x80FFFFFF))
+                                .cornerRadius(20.dp)
+                                .padding(1.dp)
+                                .clickable(playPauseAction()),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Column(modifier = GlanceModifier.fillMaxWidth()) {
-                                // Scrubber Progress Bar
-                                LinearProgressIndicator(
-                                    progress = if (state.isAvailable) state.playbackPosition else 0f,
-                                    modifier = GlanceModifier
-                                        .fillMaxWidth()
-                                        .height(3.dp)
-                                        .cornerRadius(1.5.dp),
-                                    color = scrubberFill,
-                                    backgroundColor = scrubberTrack,
+                            Box(
+                                modifier = GlanceModifier
+                                    .fillMaxSize()
+                                    .background(playLensBg)
+                                    .cornerRadius(19.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Image(
+                                    provider = ImageProvider(
+                                        if (state.isPlaying) R.drawable.ic_apple_pause else R.drawable.ic_apple_play,
+                                    ),
+                                    contentDescription = if (state.isPlaying) "Pause" else "Play",
+                                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                    modifier = GlanceModifier.size(19.dp),
                                 )
-
-                                Spacer(GlanceModifier.height(2.dp))
-
-                                Row(modifier = GlanceModifier.fillMaxWidth()) {
-                                    Text(
-                                        text = elapsedStr,
-                                        style = TextStyle(color = textTertiary, fontSize = 8.sp),
-                                    )
-                                    Spacer(GlanceModifier.defaultWeight())
-                                    Text(
-                                        text = remainingStr,
-                                        style = TextStyle(color = textTertiary, fontSize = 8.sp),
-                                    )
-                                }
-
-                                Spacer(GlanceModifier.height(4.dp))
-
-                                // 5-Button Control Dock
-                                Row(
-                                    modifier = GlanceModifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Box(
-                                        modifier = GlanceModifier.size(28.dp).clickable(volumeDownAction()),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Image(
-                                            provider = ImageProvider(R.drawable.ic_apple_volume_min),
-                                            contentDescription = "Volume Down",
-                                            colorFilter = ColorFilter.tint(textSecondary),
-                                            modifier = GlanceModifier.size(14.dp),
-                                        )
-                                    }
-
-                                    Spacer(GlanceModifier.defaultWeight())
-
-                                    Box(
-                                        modifier = GlanceModifier.size(32.dp).clickable(skipPreviousAction()),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Image(
-                                            provider = ImageProvider(R.drawable.ic_apple_backward),
-                                            contentDescription = "Previous",
-                                            colorFilter = ColorFilter.tint(textPrimary),
-                                            modifier = GlanceModifier.size(18.dp),
-                                        )
-                                    }
-
-                                    Spacer(GlanceModifier.width(10.dp))
-
-                                    Box(
-                                        modifier = GlanceModifier
-                                            .size(40.dp)
-                                            .background(Color(0x80FFFFFF))
-                                            .cornerRadius(20.dp)
-                                            .padding(1.dp)
-                                            .clickable(playPauseAction()),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Box(
-                                            modifier = GlanceModifier
-                                                .fillMaxSize()
-                                                .background(liquidLensBg)
-                                                .cornerRadius(19.dp),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            Image(
-                                                provider = ImageProvider(
-                                                    if (state.isPlaying) R.drawable.ic_apple_pause else R.drawable.ic_apple_play,
-                                                ),
-                                                contentDescription = if (state.isPlaying) "Pause" else "Play",
-                                                colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
-                                                modifier = GlanceModifier.size(19.dp),
-                                            )
-                                        }
-                                    }
-
-                                    Spacer(GlanceModifier.width(10.dp))
-
-                                    Box(
-                                        modifier = GlanceModifier.size(32.dp).clickable(skipNextAction()),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Image(
-                                            provider = ImageProvider(R.drawable.ic_apple_forward),
-                                            contentDescription = "Next",
-                                            colorFilter = ColorFilter.tint(textPrimary),
-                                            modifier = GlanceModifier.size(18.dp),
-                                        )
-                                    }
-
-                                    Spacer(GlanceModifier.defaultWeight())
-
-                                    Box(
-                                        modifier = GlanceModifier.size(28.dp).clickable(volumeUpAction()),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Image(
-                                            provider = ImageProvider(R.drawable.ic_apple_volume_max),
-                                            contentDescription = "Volume Up",
-                                            colorFilter = ColorFilter.tint(textSecondary),
-                                            modifier = GlanceModifier.size(14.dp),
-                                        )
-                                    }
-                                }
                             }
+                        }
+
+                        Spacer(GlanceModifier.width(12.dp))
+
+                        Box(
+                            modifier = GlanceModifier.size(32.dp).clickable(skipNextAction()),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                provider = ImageProvider(R.drawable.ic_apple_forward),
+                                contentDescription = "Next",
+                                colorFilter = ColorFilter.tint(textPrimary),
+                            )
+                        }
+
+                        Spacer(GlanceModifier.defaultWeight())
+
+                        Box(
+                            modifier = GlanceModifier.size(28.dp).clickable(volumeUpAction()),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Image(
+                                provider = ImageProvider(R.drawable.ic_apple_volume_max),
+                                contentDescription = "Volume Up",
+                                colorFilter = ColorFilter.tint(textSecondary),
+                                modifier = GlanceModifier.size(13.5.dp),
+                            )
                         }
                     }
                 }
