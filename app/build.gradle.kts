@@ -72,7 +72,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = 164
-        versionName = "15.0.0-28" // lockscreen sticky card & swipe up to show default lockscreen
+        versionName = "15.0.0-28" // trigger official release for sticky lockscreen player
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
