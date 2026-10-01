@@ -72,7 +72,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = 163
-        versionName = "15.0.0-27"
+        versionName = "15.0.0-27" // smooth liquid lyrics transition
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
